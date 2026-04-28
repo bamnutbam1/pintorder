@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Krua Oil Oil V19 - Smart Order</title>
+    <title>Krua Oil Oil V20 - Garlic Special</title>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         :root { --bg: #121212; --primary: #fbbf24; }
@@ -38,39 +38,37 @@
     </style>
 </head>
 <body>
-    <h2 class="no-print" style="margin-bottom:10px; color:var(--primary);">🍳 ครัวออยออย V19</h2>
-    <textarea id="inputText" class="no-print" placeholder="ตัวอย่าง: กระเพราหมูกรอบ 2&#10;ผัดดอกหอมหมูสับตับ เผ็ดน้อย&#10;ข้าวไข่เจียวกุ้งสับพิเศษ"></textarea>
+    <h2 class="no-print" style="margin-bottom:10px; color:var(--primary);">🍳 ครัวออยออย V20 ( garlic )</h2>
+    <textarea id="inputText" class="no-print" placeholder="หมูกระเทียม 2&#10;กุ้งหมึกทอดกระเทียม&#10;กุ้งกระเทียมไม่กระเทียม"></textarea>
     
     <div id="outputWrapper"><div id="outputText"></div></div>
 
     <div class="btn-group no-print">
-        <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์ออเดอร์ (ปรับจำนวนแล้ว)</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์ออเดอร์ (เพิ่มรายการกระเทียม)</button>
         <button class="btn btn-copy" onclick="copyAsImage()">🖼️ ส่งรูปเข้า LINE</button>
     </div>
 
     <script>
         const emojiDict = {
-            // ประเภท (เอาไข่เจียวขึ้นหมวดแรกเพื่อให้วางไอคอนก่อน)
-            "ไข่เจียว": "🥚🔥", "สุกี้น้ำ": "🍲💧", "สุกี้แห้ง": "🍲🔥", "กะเพรา": "🌿", "กระเพรา": "🌿", "พริกแกง": "🥘", 
-            "ข้าวผัด": "🍚", "ผัดดอกหอม": "🍳🌱", "ไข่ขยี้": "🍳🔥", "คะน้า": "🥬",
+            // ประเภท
+            "กระเทียม": "🧄", "กะเพรา": "🌿", "กระเพรา": "🌿", "พริกแกง": "🥘", "ไข่เจียว": "🥚🔥", "สุกี้น้ำ": "🍲💧", "สุกี้แห้ง": "🍲🔥", "ข้าวผัด": "🍚", "ผัดดอกหอม": "🍳🌱", "ไข่ขยี้": "🍳🔥", "คะน้า": "🥬",
             // เนื้อสัตว์
-            "หมูสับ": "🐽", "กุ้งสับ": "🦐🐽", "หมูกรอบ": "🥓", "หมูชิ้น": "🐖", "หมู": "🐖", "ไก่": "🐔", "เนื้อ": "🐂", 
-            "กุ้ง": "🦐", "หมึก": "🦑", "ปลาหมึก": "🦑", "ตับ": "🥩", "ปลากระป๋อง": "🥫", "ทรงเครื่อง": "🍱", "หอมใหญ่": "🧅",
-            // ผัก & เสริม
-            "หน่อไม้ดอง": "🎋", "หน่อไม้": "🎋", "ดอกหอม": "🌱", 
+            "หมูสับ": "🐽", "หมูกรอบ": "🥓", "หมูชิ้น": "🐖", "หมู": "🐖", "ไก่": "🐔", "เนื้อ": "🐂", "กุ้ง": "🦐", "หมึก": "🦑", "ปลาหมึก": "🦑", "ตับ": "🥩", "ปลากระป๋อง": "🥫",
+            // เงื่อนไขพิเศษ
+            "ไม่กระเทียม": "🚫🧄", "พิเศษ": "⭐", "ดอกหอม": "🌱", "หน่อไม้ดอง": "🎋",
             // ความเผ็ด
             "ไม่ใส่พริก": "🚫🌶️", "เผ็ดน้อย": "🌶️", "เผ็ดมากมาก": "🔥🌶️🔥", "เผ็ดมาก": "🌶️🌶️🌶️", "เผ็ด": "🌶️🌶️",
-            // ไข่ & พิเศษ
-            "ไข่ดาวไม่สุก": "🍳💦", "ไข่ดาวสุก": "🍳✅", "ไข่ดาว": "🍳", "พิเศษ": "⭐", "2 ฟอง": "🥚x2"
+            // ไข่
+            "ไข่ดาวไม่สุก": "🍳💦", "ไข่ดาวสุก": "🍳✅", "ไข่ดาว": "🍳"
         };
 
-        // ลำดับการเรียง: ประเภท(ไข่เจียวจะอยู่กลุ่มนี้) > เนื้อสัตว์ > ผัก > เผ็ด > พิเศษ
+        // ลำดับการเรียง: ประเภทเนื้อสัตว์ > ประเภทการทำ(กระเทียม/กะเพรา) > เงื่อนไขพิเศษ > ความเผ็ด > ไข่
         const flow = [
-            ["ไข่เจียว", "สุกี้น้ำ", "สุกี้แห้ง", "กะเพรา", "กระเพรา", "พริกแกง", "ข้าวผัด", "ผัดดอกหอม", "ไข่ขยี้", "คะน้า"],
-            ["กุ้งสับ", "หมูสับ", "หมูกรอบ", "หมูชิ้น", "หมู", "ไก่", "เนื้อ", "กุ้ง", "หมึก", "ตับ", "ปลากระป๋อง", "ทรงเครื่อง", "หอมใหญ่"],
-            ["หน่อไม้ดอง", "หน่อไม้", "ดอกหอม", "2 ฟอง"],
-            ["ไม่ใส่พริก", "เผ็ดน้อย", "เผ็ดมากมาก", "เผ็ดมาก", "เผ็ด"],
-            ["ไข่ดาวไม่สุก", "ไข่ดาวสุก", "พิเศษ"]
+            ["หมูสับ", "หมูกรอบ", "หมูชิ้น", "หมู", "ไก่", "เนื้อ", "กุ้ง", "หมึก", "ปลาหมึก", "ตับ", "ปลากระป๋อง"], // 1. เนื้อสัตว์
+            ["กระเทียม", "กะเพรา", "กระเพรา", "พริกแกง", "ไข่เจียว", "สุกี้น้ำ", "สุกี้แห้ง", "ข้าวผัด", "ผัดดอกหอม", "ไข่ขยี้", "คะน้า"], // 2. ประเภท
+            ["ไม่กระเทียม", "พิเศษ", "ดอกหอม", "หน่อไม้ดอง"], // 3. เสริม
+            ["ไม่ใส่พริก", "เผ็ดน้อย", "เผ็ดมากมาก", "เผ็ดมาก", "เผ็ด"], // 4. เผ็ด
+            ["ไข่ดาวไม่สุก", "ไข่ดาวสุก", "ไข่ดาว"] // 5. ไข่
         ];
 
         function convert() {
@@ -79,7 +77,6 @@
             for (let line of lines) {
                 if (!line.trim()) continue;
                 
-                // ตรวจหาจำนวน (รองรับทั้งหน้าและหลัง เช่น "2 กระเพรา" หรือ "กระเพรา 2")
                 let qty = "1";
                 let qtyMatch = line.match(/(\d+)\s+/) || line.match(/\s+(\d+)$/) || line.match(/(\d+)$/);
                 if (qtyMatch) qty = qtyMatch[1];
@@ -91,14 +88,17 @@
                     for (let key of group) {
                         if (tempLine.includes(key)) {
                             iconsHtml += `${emojiDict[key]}<span class="thai-ref">${key}</span> `;
-                            // ถ้าเป็นเนื้อสัตว์ ไม่ใช้ break เพื่อให้ดึงได้หลายอย่าง เช่น หมูสับ+ตับ
-                            if (group !== flow[1]) break; 
+                            // สำหรับเนื้อสัตว์ ให้หาต่อเผื่อเป็นเมนูผสม (เช่น กุ้งหมึก)
+                            if (group !== flow[0]) {
+                                tempLine = tempLine.replace(key, "###");
+                                break;
+                            }
                         }
                     }
                 }
                 if (iconsHtml) htmlOut += `<div class="order-line"><span class="qty-badge">x${qty}</span> ${iconsHtml}</div>`;
             }
-            document.getElementById('outputText').innerHTML = htmlOut || "<span style='color:#ccc'>รอออเดอร์...</span>";
+            document.getElementById('outputText').innerHTML = htmlOut || "<span style='color:#ccc'>รอออเดอร์กระเทียม...</span>";
         }
 
         async function copyAsImage() {
@@ -108,8 +108,8 @@
                 try {
                     const data = [new ClipboardItem({ [blob.type]: blob })];
                     await navigator.clipboard.write(data);
-                    alert('คัดลอกรูปภาพแล้ว! ไปที่ LINE แล้วกด "วาง"');
-                } catch (err) { alert('กรุณาใช้บนเบราว์เซอร์ Chrome/Edge'); }
+                    alert('คัดลอกรูปภาพแล้ว! วางใน LINE ได้เลย');
+                } catch (err) { alert('กรุณาใช้ Chrome บนมือถือ'); }
             });
         }
         document.getElementById('inputText').addEventListener('input', convert);
