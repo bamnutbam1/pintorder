@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Krua Oil Oil - Mobile POS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #121212; --surface: #1e1e1e; --primary: #fbbf24; 
+            --primary-dark: #f59e0b; --danger: #f87171; --text: #f3f4f6; --line-green: #06C755;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* สไตล์สำหรับการพิมพ์ (Print Mode) */
+        @media print {
+            body { background: white !important; color: black !important; padding: 0; margin: 0; }
+            .no-print, .header, .toolbar, .action-container, .box-title, #inputText, .toast { display: none !important; }
+            .container { width: 100% !important; max-width: 100% !important; border: none !important; }
+            #outputText { 
+                background: white !important; 
+                color: black !important; 
+                border: none !important; 
+                font-size: 24pt !important; /* ปรับขนาดให้ใหญ่พอดีหน้ากระดาษความร้อน */
+                width: 100% !important;
+                height: auto !important;
+                text-align: left !important;
+                overflow: visible !important;
+            }
+        }
+
+        body { font-family: 'Prompt', sans-serif; background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; padding: 20px; align-items: center; }
+        .container { width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 15px; flex: 1; }
+        .header { text-align: center; margin-bottom: 5px; }
+        .header h1 { font-size: 26px; color: var(--primary); }
+        .box-title { font-size: 14px; color: #9ca3af; margin-bottom: -10px; }
+        
+        #inputText { width: 100%; min-height: 80px; background-color: var(--surface); color: var(--text); border: 2px solid #333; border-radius: 12px; padding: 12px; font-size: 16px; outline: none; }
+        #outputText { width: 100%; min-height: 200px; background-color: #27272a; border: 2px solid var(--primary); border-radius: 12px; padding: 15px; font-size: 26px; line-height: 1.5; color: white; resize: none; outline: none; }
+
+        .toolbar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn { border: none; border-radius: 12px; padding: 12px; font-family: 'Prompt', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        
+        .btn-paste { background-color: #374151; color: white; }
+        .btn-clear { background-color: rgba(248, 113, 113, 0.1); color: var(--danger); border: 1px solid var(--danger); }
+        
+        .action-container { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 20px; }
+        .btn-line { background: var(--line-green); color: white; padding: 15px; font-size: 18px; }
+        .btn-print { background: #ffffff; color: #000; padding: 15px; font-size: 18px; border: 2px solid #ccc; }
+
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 20px; border-radius: 20px; opacity: 0; transition: 0.3s; pointer-events: none; }
+        .toast.show { opacity: 1; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header"><h1>🍳 แปลงออเดอร์ครัว</h1></div>
+
+        <div class="box-title">📥 วางออเดอร์ไทย:</div>
+        <textarea id="inputText" placeholder="วางออเดอร์จาก LINE..."></textarea>
+
+        <div class="toolbar no-print">
+            <button class="btn btn-paste" onclick="pasteFromClipboard()">📋 วาง</button>
+            <button class="btn btn-clear" onclick="clearText()">🗑️ ล้าง</button>
+        </div>
+
+        <div class="box-title">✨ ผลลัพธ์ (สแกนภาพ):</div>
+        <textarea id="outputText" readonly></textarea>
+
+        <div class="action-container no-print">
+            <button class="btn btn-line" onclick="shareToLine()">💬 ส่งเข้า LINE พนักงาน</button>
+            <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์ออกเครื่องความร้อน</button>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+
+        const emojiDict = {
+            "พริกแกงหมูใส่ถั่วฝักยาว": "🥘🌶️🐖🎋", "พริกแกงกุ้งหมึก": "🥘🌶️🦐🦑", "พริกแกงหมูกรอบ": "🥘🌶️🥓",
+            "พริกแกงไก่": "🥘🌶️🐔", "พริกแกงเนื้อ": "🥘🌶️🐂", "พริกแกง": "🥘🌶️",
+            "หมูกรอบคั่วพริกเกลือ": "🥓🧂🌶️", "หมูกรอบผัดพริกเผา": "🥓🌶️🥫",
+            "ข้าวไข่เจียวหมูสับ": "🍚🥚🐷", "ข้าวไข่ดาว 2 ฟอง": "🍚🍳🍳",
+            "กระเพราหน่อไม้ดอง": "🌿🎋", "กระเพราหมูกรอบ": "🌿🥓", "กระเพราหมูชิ้น": "🌿🐖",
+            "หมูกระเทียม": "🐷🧄", "ไก่กระเทียม": "🐔🧄", "เนื้อกระเทียม": "🐂🧄",
+            "ผัดตับดอกหอม": "🥩🌱", "ผัดพริกเผา": "🌶️🥫", "ผัดผงกะหรี่": "🟡🥘",
+            "ข้าวผัด": "🍚🔥", "สุกี้น้ำ": "🍲💧", "สุกี้แห้ง": "🍲🔥",
+            "ไข่ดาวไม่สุก": "🍳💦", "ไข่ดาวสุก": "🍳✅", "ข้าวไข่ดาว": "🍚🍳",
+            "ไข่ดาว": "🍳", "ไข่เจียว": "🥚", "กระเพรา": "🌿", "กะเพรา": "🌿",
+            "หมูกรอบ": "🥓", "หมูชิ้น": "🐖", "หมูสับ": "🐷", "ไก่": "🐔", "เนื้อ": "🐂",
+            "กุ้ง": "🦐", "หมึก": "🦑", "เผ็ดมาก": "🌶️🌶️🌶️", "เผ็ดน้อย": "🌶️", "พิเศษ": "⭐", "ใส่ถ้วย": "🥣"
+        };
+
+        function clearText() { inputText.value = ''; outputText.value = ''; }
+
+        async function pasteFromClipboard() {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text) { inputText.value = text; convert(); }
+            } catch (err) { showToast('กรุณาวางด้วยตัวเอง'); }
+        }
+
+        function convert() {
+            let lines = inputText.value.split('\n');
+            let out = [];
+            const sortedKeys = Object.keys(emojiDict).sort((a,b) => b.length - a.length);
+
+            for (let line of lines) {
+                line = line.trim();
+                if (!line || line.startsWith('─')) continue;
+                let qty = "1";
+                let qtyMatch = line.match(/[xX×]\s*(\d+)/) || line.match(/(\d+)\s*(ที่|กล่อง)/);
+                if (qtyMatch) qty = qtyMatch[1];
+
+                let icons = [];
+                for (let k of sortedKeys) {
+                    if (line.includes(k)) {
+                        icons.push(`${emojiDict[k]}(${k})`);
+                        line = line.replace(new RegExp(k, 'g'), '');
+                    }
+                }
+                if (icons.length > 0) out.push(`x${qty}  ${icons.join(' ')}`);
+            }
+            outputText.value = out.join('\n\n');
+        }
+
+        function shareToLine() {
+            const msg = `👨‍🍳 ORDER:\n\n${outputText.value}`;
+            window.open(`https://line.me/R/msg/text/?${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        function showToast(m) {
+            const t = document.getElementById('toast');
+            t.textContent = m; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2000);
+        }
+
+        inputText.addEventListener('input', convert);
+    </script>
+</body>
+</html>
