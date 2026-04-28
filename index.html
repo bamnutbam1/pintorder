@@ -3,58 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Krua Oil Oil V17 - Micro POS</title>
+    <title>Krua Oil Oil V18 - Copy to LINE</title>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
+        :root { --bg: #121212; --primary: #fbbf24; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: sans-serif; background: #121212; color: #fff; padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        body { font-family: sans-serif; background: var(--bg); color: #fff; padding: 15px; display: flex; flex-direction: column; align-items: center; }
         
-        /* จุดตาย: การตั้งค่าหน้าพิมพ์ให้จิ๋ว */
         @media print {
-            body { background: white; color: black; padding: 0; }
             .no-print { display: none !important; }
-            #outputWrapper { border: none !important; padding: 0 !important; width: 100% !important; }
+            #outputWrapper { border: none !important; width: 100% !important; background: white !important; }
             .order-line { 
-                font-size: 18pt !important; /* ขนาดกำลังดี ไม่ใหญ่จนกินที่ */
-                font-weight: bold !important;
-                border-bottom: 0.5pt solid #000 !important;
-                margin-bottom: 3pt !important;
-                padding-bottom: 2pt !important;
-                display: flex !important;
-                align-items: center !important;
-                line-height: 1.1 !important;
-                white-space: nowrap !important; /* บังคับให้อยู่บรรทัดเดียว */
+                font-size: 24pt !important; 
+                font-weight: 900 !important;
+                color: black !important;
+                border-bottom: 2pt solid black !important;
+                margin-bottom: 8pt !important;
+                padding-bottom: 5pt !important;
+                line-height: 1.3 !important;
             }
-            .thai-ref { font-size: 7pt !important; color: #444 !important; margin-left: 2px; }
+            .thai-ref { font-size: 9pt !important; color: #333 !important; }
         }
 
-        #inputText { width: 100%; max-width: 400px; height: 60px; background: #222; color: #fff; border: 1px solid #444; border-radius: 8px; padding: 8px; margin-bottom: 10px; }
-        #outputWrapper { width: 100%; max-width: 400px; background: #fff; color: #000; border-radius: 8px; padding: 10px; min-height: 200px; }
-        .order-line { font-size: 20px; color: #000; border-bottom: 1px solid #eee; padding: 5px 0; display: flex; align-items: center; }
-        .thai-ref { font-size: 10px; color: #888; margin-left: 3px; }
-        .btn-print { width: 100%; max-width: 400px; background: #4CAF50; color: white; padding: 15px; border: none; border-radius: 8px; margin-top: 10px; font-weight: bold; font-size: 18px; }
+        #inputText { width: 100%; max-width: 450px; height: 80px; background: #222; color: #fff; border: 1px solid #444; border-radius: 10px; padding: 10px; margin-bottom: 10px; font-size: 16px; }
+        #outputWrapper { width: 100%; max-width: 450px; background: #fff; color: #000; border-radius: 10px; padding: 15px; }
+        .order-line { font-size: 22px; font-weight: bold; border-bottom: 1px solid #ddd; padding: 8px 0; line-height: 1.4; }
+        .thai-ref { font-size: 11px; color: #777; margin-left: 3px; font-weight: normal; }
+        
+        .btn-group { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .btn { padding: 18px; border: none; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; }
+        .btn-print { background: #fff; color: #000; border: 2px solid #ccc; }
+        .btn-copy { background: #06C755; color: #fff; }
     </style>
 </head>
 <body>
-    <h3 class="no-print">🍳 ครัวออยออย V17 (ประหยัดสุด)</h3>
-    <textarea id="inputText" class="no-print" placeholder="วางออเดอร์..."></textarea>
-    <div id="outputWrapper"><div id="outputText"></div></div>
-    <button class="btn-print no-print" onclick="window.print()">🖨️ พิมพ์ออเดอร์</button>
+    <h2 class="no-print" style="margin-bottom:10px; color:var(--primary);">🍳 ครัวออยออย V18</h2>
+    <textarea id="inputText" class="no-print" placeholder="วางออเดอร์ที่นี่..."></textarea>
+    
+    <div id="outputWrapper">
+        <div id="outputText"></div>
+    </div>
+
+    <div class="btn-group no-print">
+        <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์เข้าครัว (ไอคอนใหญ่)</button>
+        <button class="btn btn-copy" onclick="copyAsImage()">🖼️ คัดลอกรูปไปวางใน LINE</button>
+    </div>
 
     <script>
         const emojiDict = {
             "สุกี้น้ำ": "🍲💧", "สุกี้แห้ง": "🍲🔥", "กะเพรา": "🌿", "กระเพรา": "🌿", "พริกแกง": "🥘", 
-            "ข้าวผัด": "🍚", "ผัดดอกหอม": "🌱", "ไข่ขยี้": "🍳",
+            "ข้าวผัด": "🍚", "ผัดดอกหอม": "🍳🌱", "ไข่ขยี้": "🍳🔥", "คะน้า": "🥬",
             "หมูสับ": "🐽", "หมูกรอบ": "🥓", "หมูชิ้น": "🐖", "หมู": "🐖", "ไก่": "🐔", "เนื้อ": "🐂", 
             "กุ้ง": "🦐", "หมึก": "🦑", "ปลาหมึก": "🦑", "ตับ": "🥩", "ปลากระป๋อง": "🥫",
-            "หน่อไม้ดอง": "🎋", "ไม่ใส่พริก": "🚫🌶️", "เผ็ดน้อย": "🌶️", "เผ็ดมากมาก": "🔥🌶️", "เผ็ดมาก": "🌶️🌶️", "เผ็ด": "🌶️",
-            "ไข่ดาวไม่สุก": "🍳💦", "ไข่ดาวสุก": "🍳✅", "ไข่เจียว": "🥚"
+            "หน่อไม้ดอง": "🎋", "ไม่ใส่พริก": "🚫🌶️", "เผ็ดน้อย": "🌶️", "เผ็ดมากมาก": "🔥🌶️🔥", "เผ็ดมาก": "🌶️🌶️🌶️", "เผ็ด": "🌶️🌶️",
+            "ไข่ดาวไม่สุก": "🍳💦", "ไข่ดาวสุก": "🍳✅", "ไข่เจียว": "🥚🔥", "พิเศษ": "⭐"
         };
 
         const flow = [
-            ["สุกี้น้ำ", "สุกี้แห้ง", "กะเพรา", "กระเพรา", "พริกแกง", "ข้าวผัด", "ผัดดอกหอม", "ไข่ขยี้"],
+            ["สุกี้น้ำ", "สุกี้แห้ง", "กะเพรา", "กระเพรา", "พริกแกง", "ข้าวผัด", "ผัดดอกหอม", "ไข่ขยี้", "คะน้า"],
             ["หมูสับ", "หมูกรอบ", "หมูชิ้น", "หมู", "ไก่", "เนื้อ", "กุ้ง", "หมึก", "ตับ", "ปลากระป๋อง"],
             ["หน่อไม้ดอง"], ["ไม่ใส่พริก", "เผ็ดน้อย", "เผ็ดมากมาก", "เผ็ดมาก", "เผ็ด"],
-            ["ไข่ดาวไม่สุก", "ไข่ดาวสุก", "ไข่เจียว"]
+            ["ไข่ดาวไม่สุก", "ไข่ดาวสุก", "ไข่ดาว", "ไข่เจียว", "พิเศษ"]
         ];
 
         function convert() {
@@ -77,8 +86,23 @@
                 }
                 if (iconsHtml) htmlOut += `<div class="order-line">x${qty} ${iconsHtml}</div>`;
             }
-            document.getElementById('outputText').innerHTML = htmlOut || "รอออเดอร์...";
+            document.getElementById('outputText').innerHTML = htmlOut || "<span style='color:#ccc'>รอออเดอร์...</span>";
         }
+
+        async function copyAsImage() {
+            const wrapper = document.getElementById('outputWrapper');
+            const canvas = await html2canvas(wrapper);
+            canvas.toBlob(async (blob) => {
+                try {
+                    const data = [new ClipboardItem({ [blob.type]: blob })];
+                    await navigator.clipboard.write(data);
+                    alert('คัดลอกรูปภาพแล้ว! ไปที่ LINE แล้วกด "วาง" ได้เลย');
+                } catch (err) {
+                    alert('มือถือบางรุ่นไม่รองรับการคัดลอกรูปอัตโนมัติ');
+                }
+            });
+        }
+
         document.getElementById('inputText').addEventListener('input', convert);
     </script>
 </body>
