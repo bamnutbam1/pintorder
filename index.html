@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Krua Oil Oil - POS V15 Perfect Flow</title>
+    <title>Krua Oil Oil - POS V16 Eco Print</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@700;900&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #121212; --surface: #1e1e1e; --primary: #fbbf24; --text: #f3f4f6; }
@@ -12,50 +12,50 @@
             body { background: white !important; color: black !important; padding: 0; margin: 0; }
             .no-print { display: none !important; }
             .order-line { 
-                font-size: 32pt !important; font-weight: 900 !important; color: black !important;
-                border-bottom: 2pt solid black !important; margin-bottom: 12pt !important;
-                padding-bottom: 8pt !important; display: block !important; line-height: 1.1 !important;
+                font-size: 24pt !important; font-weight: 900 !important; color: black !important;
+                border-bottom: 1pt solid #ccc !important; margin-bottom: 5pt !important;
+                padding-bottom: 3pt !important; display: block !important; line-height: 1.0 !important;
             }
-            .thai-ref { font-size: 10pt !important; font-weight: normal !important; color: #333 !important; }
+            .thai-ref { font-size: 8pt !important; font-weight: normal !important; color: #666 !important; }
         }
-        body { font-family: 'Prompt', sans-serif; background-color: var(--bg); color: var(--text); padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 600px; }
-        #inputText { width: 100%; min-height: 100px; background: var(--surface); color: white; border: 2px solid #444; border-radius: 12px; padding: 12px; margin-bottom: 10px; font-size: 16px; outline: none; }
-        #outputWrapper { width: 100%; min-height: 350px; background: #27272a; border: 2px solid var(--primary); border-radius: 12px; padding: 15px; }
-        .order-line { font-size: 26px; font-weight: 900; margin-bottom: 15px; border-bottom: 1px dashed #555; padding-bottom: 10px; }
-        .thai-ref { font-size: 13px; color: #aaa; font-weight: normal; margin-left: 2px; }
-        .btn-print { width: 100%; background: white; color: black; padding: 20px; font-size: 22px; font-weight: 900; border: 4px solid #ccc; border-radius: 15px; margin-top: 15px; cursor: pointer; }
+        body { font-family: 'Prompt', sans-serif; background-color: var(--bg); color: var(--text); padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 500px; }
+        #inputText { width: 100%; min-height: 80px; background: var(--surface); color: white; border: 2px solid #444; border-radius: 10px; padding: 10px; margin-bottom: 10px; font-size: 16px; outline: none; }
+        #outputWrapper { width: 100%; min-height: 300px; background: #27272a; border: 2px solid var(--primary); border-radius: 10px; padding: 12px; }
+        .order-line { font-size: 22px; font-weight: 900; margin-bottom: 8px; border-bottom: 1px dashed #444; padding-bottom: 5px; line-height: 1.2; }
+        .thai-ref { font-size: 11px; color: #888; font-weight: normal; margin-left: 2px; }
+        .btn-print { width: 100%; background: white; color: black; padding: 15px; font-size: 20px; font-weight: 900; border: 3px solid #ccc; border-radius: 12px; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="no-print" style="text-align:center; color:var(--primary); margin-bottom:15px;">🍳 ครัวออยออย V15</h1>
-        <textarea id="inputText" class="no-print" placeholder="สุกี้น้ำหมู เผ็ดมาก ไข่ดาวสุก..."></textarea>
+        <h1 class="no-print" style="text-align:center; color:var(--primary); font-size: 20px; margin-bottom:10px;">🍳 ครัวออยออย V16 (Eco)</h1>
+        <textarea id="inputText" class="no-print" placeholder="ผัดดอกหอมหมูสับ เผ็ด..."></textarea>
         <div id="outputWrapper"><div id="outputText"></div></div>
-        <button class="btn-print no-print" onclick="window.print()">🖨️ พิมพ์ออเดอร์ (เรียงเป๊ะ)</button>
+        <button class="btn-print no-print" onclick="window.print()">🖨️ พิมพ์ (แบบประหยัดกระดาษ)</button>
     </div>
 
     <script>
         const emojiDict = {
             // ประเภท
-            "กะเพรา": "🌿", "กระเพรา": "🌿", "พริกแกง": "🥘🌶️", "สุกี้น้ำ": "🍲💧", "สุกี้แห้ง": "🍲🔥", "ข้าวผัด": "🍚🔥", "ไข่ขยี้": "🍳🔥", "คะน้า": "🥬",
-            // เนื้อสัตว์
-            "หมูสับ": "🐷", "หมูกรอบ": "🥓", "หมูชิ้น": "🐖", "หมู": "🐖", "ไก่": "🐔", "เนื้อ": "🐂", "กุ้ง": "🦐", "หมึก": "🦑", "ปลาหมึก": "🦑", "รวมมิตร": "🦑🦐🐷", "ตับ": "🫀", "ปลากระป๋อง": "🥫🐟",
+            "กะเพรา": "🌿", "กระเพรา": "🌿", "พริกแกง": "🥘🌶️", "สุกี้น้ำ": "🍲💧", "สุกี้แห้ง": "🍲🔥", "ข้าวผัด": "🍚🔥", "ผัดดอกหอม": "🍳🌱", "ไข่ขยี้": "🍳🔥", "คะน้า": "🥬",
+            // เนื้อสัตว์ (แยกหมูชัดเจน)
+            "หมูสับ": "🐽", "หมูกรอบ": "🥓", "หมูชิ้น": "🐖", "หมู": "🐖", "ไก่": "🐔", "เนื้อ": "🐂", "กุ้ง": "🦐", "หมึก": "🦑", "ปลาหมึก": "🦑", "ตับ": "🥩🫀", "ปลากระป๋อง": "🥫🐟",
             // ผัก
-            "หน่อไม้ดอง": "🎋", "หน่อไม้": "🎋", "ดอกหอม": "🌱", "ผักกาดขาว": "🥬",
+            "หน่อไม้ดอง": "🎋", "หน่อไม้": "🎋", "ดอกหอม": "🌱",
             // ความเผ็ด
-            "ไม่ใส่พริก": "🚫🌶️", "เผ็ดน้อย": "🌶️", "เผ็ดมากมาก": "🔥🌶️🔥(โครตเผ็ด)", "เผ็ดมาก": "🌶️🌶️🌶️(เผ็ด)", "เผ็ด": "🌶️🌶️(เผ็ดขึ้นหน่อย)",
+            "ไม่ใส่พริก": "🚫🌶️", "เผ็ดน้อย": "🌶️", "เผ็ดมากมาก": "🔥🌶️🔥", "เผ็ดมาก": "🌶️🌶️🌶️", "เผ็ด": "🌶️🌶️",
             // ไข่
-            "ไข่ดาวไม่สุก": "🍳💦", "ไข่ดาวสุก": "🍳✅", "ไข่ดาว": "🍳", "ไข่เจียว": "🥚🔥", "พิเศษ": "⭐"
+            "ไข่ดาวไม่สุก": "🍳💦", "ไข่ดาวสุก": "🍳✅", "ไข่ดาว": "🍳", "ไข่เจียว": "🥚🔥"
         };
 
-        // ลำดับการเรียงตามสั่ง: ประเภท > เนื้อสัตว์ > ผัก > ความเผ็ด > ไข่
+        // เรียงลำดับ: ประเภท > เนื้อสัตว์ > ผัก > เผ็ด > ไข่
         const flow = [
-            ["สุกี้น้ำ", "สุกี้แห้ง", "กะเพรา", "กระเพรา", "พริกแกง", "ข้าวผัด", "ไข่ขยี้", "คะน้า"], // 1. ประเภท
-            ["รวมมิตร", "กุ้งหมึก", "กุ้ง", "หมึก", "ปลาหมึก", "หมูกรอบ", "หมูสับ", "หมูชิ้น", "หมู", "ไก่", "เนื้อ", "ตับ", "ปลากระป๋อง"], // 2. เนื้อสัตว์
-            ["หน่อไม้ดอง", "หน่อไม้", "ดอกหอม", "ผักกาดขาว"], // 3. ผัก
-            ["ไม่ใส่พริก", "เผ็ดน้อย", "เผ็ดมากมาก", "เผ็ดมาก", "เผ็ด"], // 4. เผ็ด
-            ["ไข่ดาวไม่สุก", "ไข่ดาวสุก", "ไข่ดาว", "ไข่เจียว", "พิเศษ"] // 5. ไข่
+            ["สุกี้น้ำ", "สุกี้แห้ง", "กะเพรา", "กระเพรา", "พริกแกง", "ข้าวผัด", "ผัดดอกหอม", "ไข่ขยี้", "คะน้า"],
+            ["หมูสับ", "หมูกรอบ", "หมูชิ้น", "หมู", "ไก่", "เนื้อ", "กุ้ง", "หมึก", "ปลาหมึก", "ตับ", "ปลากระป๋อง"],
+            ["หน่อไม้ดอง", "หน่อไม้", "ดอกหอม"],
+            ["ไม่ใส่พริก", "เผ็ดน้อย", "เผ็ดมากมาก", "เผ็ดมาก", "เผ็ด"],
+            ["ไข่ดาวไม่สุก", "ไข่ดาวสุก", "ไข่ดาว", "ไข่เจียว"]
         ];
 
         function convert() {
@@ -70,9 +70,9 @@
                 for (let group of flow) {
                     for (let key of group) {
                         if (currentLine.includes(key)) {
-                            iconsHtml += `${emojiDict[key]}<span class="thai-ref">(${key})</span> `;
-                            currentLine = currentLine.replace(key, "###"); // กันหาซ้ำ
-                            if (group === flow[0] || group === flow[3]) break; // ประเภทและความเผ็ดเลือกได้อย่างเดียว
+                            iconsHtml += `${emojiDict[key]}<span class="thai-ref">${key}</span> `;
+                            currentLine = currentLine.replace(key, "###");
+                            break; 
                         }
                     }
                 }
