@@ -3,85 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Krua Oil Oil V21 - Structured POS</title>
+    <title>Krua Oil Oil V22 - Full Bill POS</title>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
-        :root { --bg: #121212; --primary: #fbbf24; }
+        :root { --bg: #121212; --primary: #fbbf24; --surface: #1e1e1e; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: sans-serif; background: var(--bg); color: #fff; padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        body { font-family: 'Prompt', sans-serif; background: var(--bg); color: #fff; padding: 15px; display: flex; flex-direction: column; align-items: center; }
         
+        /* สไตล์หน้าพิมพ์ */
         @media print {
             .no-print { display: none !important; }
-            #outputWrapper { border: none !important; width: 100% !important; background: white !important; }
+            #outputWrapper { border: none !important; width: 100% !important; background: white !important; color: black !important; }
+            .bill-header { border-bottom: 2pt solid black !important; margin-bottom: 10pt !important; padding-bottom: 5pt !important; }
             .order-line { 
-                font-size: 25pt !important; 
-                font-weight: 900 !important;
-                color: black !important;
-                border-bottom: 2pt solid black !important;
-                margin-bottom: 8pt !important;
-                padding-bottom: 4pt !important;
-                line-height: 1.2 !important;
+                font-size: 24pt !important; font-weight: 900 !important;
+                border-bottom: 1pt solid black !important; margin-bottom: 8pt !important;
+                padding-bottom: 4pt !important; line-height: 1.2 !important;
             }
             .thai-ref { font-size: 9pt !important; color: #444 !important; }
+            .header-info { font-size: 12pt !important; font-weight: bold !important; }
         }
 
-        #inputText { width: 100%; max-width: 500px; height: 100px; background: #222; color: #fff; border: 1px solid #444; border-radius: 10px; padding: 10px; margin-bottom: 10px; font-size: 16px; outline: none; }
+        .input-group { width: 100%; max-width: 500px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .input-full { grid-column: span 2; }
+        input, textarea { width: 100%; background: var(--surface); color: #fff; border: 1px solid #444; border-radius: 8px; padding: 10px; font-size: 14px; outline: none; }
+        textarea { height: 100px; }
+        
         #outputWrapper { width: 100%; max-width: 500px; background: #fff; color: #000; border-radius: 10px; padding: 15px; }
-        .order-line { font-size: 24px; font-weight: bold; border-bottom: 1px solid #eee; padding: 8px 0; line-height: 1.4; display: flex; align-items: center; flex-wrap: wrap; }
-        .qty-badge { font-size: 26px; color: #e11d48; margin-right: 8px; font-weight: 900; }
-        .thai-ref { font-size: 10px; color: #888; margin-left: 2px; font-weight: normal; }
+        .bill-header { border-bottom: 1px double #000; margin-bottom: 15px; padding-bottom: 10px; color: #000; }
+        .header-row { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 13px; font-weight: bold; }
+        
+        .order-line { font-size: 22px; font-weight: bold; border-bottom: 1px dashed #ccc; padding: 8px 0; line-height: 1.3; display: flex; align-items: center; flex-wrap: wrap; }
+        .qty-badge { font-size: 24px; color: #e11d48; margin-right: 8px; font-weight: 900; }
+        .thai-ref { font-size: 10px; color: #777; margin-left: 2px; font-weight: normal; }
         
         .btn-group { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
-        .btn { padding: 18px; border: none; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; }
+        .btn { padding: 15px; border: none; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; }
         .btn-print { background: #fff; color: #000; border: 2px solid #ccc; }
         .btn-copy { background: #06C755; color: #fff; }
     </style>
 </head>
 <body>
-    <h2 class="no-print" style="margin-bottom:10px; color:var(--primary);">🍳 ครัวออยออย V21</h2>
-    <textarea id="inputText" class="no-print" placeholder="กะเพราหมูสับ 2 เผ็ดๆ&#10;แกงจืดเต้าหู้หมูสับ&#10;สุกี้น้ำรวมมิตร ไม่ใส่ผัก น้ำน้อย"></textarea>
+    <h2 class="no-print" style="margin-bottom:15px; color:var(--primary);">🍳 ครัวออยออย V22</h2>
     
-    <div id="outputWrapper"><div id="outputText"></div></div>
+    <div class="input-group no-print">
+        <input type="text" id="custName" placeholder="ชื่อลูกค้า">
+        <input type="text" id="orderNo" placeholder="ลำดับที่ (เช่น #01)">
+        <input type="text" id="location" class="input-full" placeholder="สถานที่ส่ง / เวลาที่ส่ง">
+        <textarea id="inputText" class="input-full" placeholder="กะเพราหมูกรอบไข่ดาวไม่สุกใส่ถ้วย..."></textarea>
+    </div>
+    
+    <div id="outputWrapper">
+        <div class="bill-header">
+            <div style="text-align:center; font-size: 18px; font-weight: 900; margin-bottom: 5px;">--- ครัวออยออย ---</div>
+            <div class="header-row"><span id="outCust">ชื่อ: -</span> <span id="outNo"># -</span></div>
+            <div class="header-row"><span id="outLoc">ที่ส่ง: -</span></div>
+            <div class="header-row"><span id="outDate">วันที่: -</span> <span id="outTime">เวลา: -</span></div>
+        </div>
+        <div id="outputText"></div>
+    </div>
 
     <div class="btn-group no-print">
-        <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์ออเดอร์ (ลำดับใหม่)</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์บิลส่งอาหาร</button>
         <button class="btn btn-copy" onclick="copyAsImage()">🖼️ ส่งรูปเข้า LINE</button>
     </div>
 
     <script>
         const emojiDict = {
-            // หมวด 1: ประเภท (ขึ้นต้น)
             "กะเพรา": "🌿", "กระเพรา": "🌿", "พริกแกง": "🥘", "ทอดกระเทียม": "🧄🔥", "กระเทียม": "🧄", 
-            "ผัดผัก": "🥦", "สุกี้น้ำ": "🍲💧", "สุกี้แห้ง": "🍲🔥", "ข้าวผัด": "🍚", "แกงจืด": "🥣", "ไข่ขยี้": "🍳🔥", "คะน้า": "🥬", "ผัดดอกหอม": "🍳🌱",
-            // หมวด 2: เนื้อสัตว์
-            "หมูสับ": "🐽", "หมูกรอบ": "🥓", "หมูชิ้น": "🐖", "หมู": "🐖", "ไก่": "🐔", "เนื้อ": "🐂", "กุ้ง": "🦐", "หมึก": "🦑", "ตับ": "🥩", "ปลากระป๋อง": "🥫", "เต้าหู้": "🧊", "ไข่น้ำ": "🍳💧", "รวมมิตร": "🦑🦐🐷",
-            // หมวด 3: ผัก/เสริม/สุกี้ออปชัน
-            "หน่อไม้ดอง": "🎋", "ดอกหอม": "🌱", "ไม่ใส่วุ้นเส้น": "🚫🍜", "ไม่ใส่ผัก": "🚫🥬", "น้ำน้อย": "💧⬇️", "พิเศษ": "⭐",
-            // หมวด 4: เผ็ด
+            "ผัดผัก": "🥦", "สุกี้น้ำ": "🍲💧", "สุกี้แห้ง": "🍲🔥", "ข้าวผัด": "🍚", "แกงจืด": "🥣", "ไข่ขยี้": "🍳🔥", "ไข่เจียว": "🥚🔥",
+            "หมูสับ": "🐽", "หมูกรอบ": "🥓", "หมูชิ้น": "🐖", "ไก่": "🐔", "เนื้อ": "🐂", "กุ้ง": "🦐", "หมึก": "🦑", "รวมมิตร": "🦑🦐🐷", "ตับ": "🥩",
+            "ใส่ถ้วย": "🥣✅", "ถ้วย": "🥣", "หน่อไม้ดอง": "🎋", "ไม่ใส่วุ้นเส้น": "🚫🍜", "ไม่ใส่ผัก": "🚫🥬", "น้ำน้อย": "💧⬇️", "พิเศษ": "⭐",
             "ไม่ใส่พริก": "🚫🌶️", "เผ็ดน้อย": "🌶️", "เผ็ดมากมาก": "🔥🌶️🔥", "เผ็ดมาก": "🌶️🌶️🌶️", "เผ็ด": "🌶️🌶️",
-            // หมวด 5: ไข่
-            "ไข่ดาวไม่สุก": "🍳💦", "ไข่ดาวสุก": "🍳✅", "ไข่ดาว": "🍳", "ไข่เจียว": "🥚🔥"
+            "ไข่ดาวไม่สุก": "🍳💦", "ไข่ดาวสุก": "🍳✅", "ไข่ดาว": "🍳", "2 ฟอง": "🥚x2"
         };
 
-        // ลำดับที่พี่สั่ง: [ประเภท] > [เนื้อสัตว์] > [เสริม/เผ็ด/ไข่]
         const flow = [
-            ["สุกี้น้ำ", "สุกี้แห้ง", "แกงจืด", "กะเพรา", "กระเพรา", "พริกแกง", "ทอดกระเทียม", "กระเทียม", "ผัดผัก", "ข้าวผัด", "ไข่ขยี้", "คะน้า", "ผัดดอกหอม"], // 1. ประเภท
-            ["รวมมิตร", "หมูสับ", "หมูกรอบ", "หมูชิ้น", "หมู", "ไก่", "เนื้อ", "กุ้ง", "หมึก", "ตับ", "ปลากระป๋อง", "เต้าหู้", "ไข่น้ำ"], // 2. เนื้อสัตว์
-            ["หน่อไม้ดอง", "ดอกหอม", "ไม่ใส่วุ้นเส้น", "ไม่ใส่ผัก", "น้ำน้อย", "พิเศษ"], // 3. เสริม
-            ["ไม่ใส่พริก", "เผ็ดน้อย", "เผ็ดมากมาก", "เผ็ดมาก", "เผ็ด"], // 4. ความเผ็ด
-            ["ไข่ดาวไม่สุก", "ไข่ดาวสุก", "ไข่ดาว", "ไข่เจียว"] // 5. ไข่
+            ["สุกี้น้ำ", "สุกี้แห้ง", "แกงจืด", "กะเพรา", "กระเพรา", "พริกแกง", "ทอดกระเทียม", "กระเทียม", "ผัดผัก", "ข้าวผัด", "ไข่ขยี้", "ไข่เจียว"],
+            ["รวมมิตร", "หมูสับ", "หมูกรอบ", "หมูชิ้น", "ไก่", "เนื้อ", "กุ้ง", "หมึก", "ตับ"],
+            ["ใส่ถ้วย", "ถ้วย", "หน่อไม้ดอง", "ไม่ใส่วุ้นเส้น", "ไม่ใส่ผัก", "น้ำน้อย", "2 ฟอง", "พิเศษ"],
+            ["ไม่ใส่พริก", "เผ็ดน้อย", "เผ็ดมากมาก", "เผ็ดมาก", "เผ็ด"],
+            ["ไข่ดาวไม่สุก", "ไข่ดาวสุก", "ไข่ดาว"]
         ];
 
+        function updateHeader() {
+            const now = new Date();
+            document.getElementById('outCust').innerText = "ชื่อ: " + (document.getElementById('custName').value || "-");
+            document.getElementById('outNo').innerText = (document.getElementById('orderNo').value || "# -");
+            document.getElementById('outLoc').innerText = "ส่ง: " + (document.getElementById('location').value || "-");
+            document.getElementById('outDate').innerText = "วันที่: " + now.toLocaleDateString('th-TH');
+            document.getElementById('outTime').innerText = "เวลา: " + now.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'});
+        }
+
         function convert() {
+            updateHeader();
             let lines = document.getElementById('inputText').value.trim().split('\n');
             let htmlOut = "";
             for (let line of lines) {
                 if (!line.trim()) continue;
-                
-                let qty = "1";
-                let qtyMatch = line.match(/(\d+)\s+/) || line.match(/\s+(\d+)$/) || line.match(/(\d+)$/);
-                if (qtyMatch) qty = qtyMatch[1];
-
+                let qty = (line.match(/(\d+)\s+/) || line.match(/\s+(\d+)$/) || line.match(/(\d+)$/) || ["", "1"])[1];
                 let iconsHtml = "";
                 let tempLine = line;
 
@@ -90,14 +110,13 @@
                         if (tempLine.includes(key)) {
                             iconsHtml += `${emojiDict[key]}<span class="thai-ref">${key}</span> `;
                             tempLine = tempLine.replace(key, "###");
-                            // ประเภท (group 0) และความเผ็ด (group 3) มักมีแค่อย่างเดียวต่อจาน
                             if (group === flow[0] || group === flow[3]) break;
                         }
                     }
                 }
                 if (iconsHtml) htmlOut += `<div class="order-line"><span class="qty-badge">x${qty}</span> ${iconsHtml}</div>`;
             }
-            document.getElementById('outputText').innerHTML = htmlOut || "<span style='color:#ccc'>รอออเดอร์ลำดับใหม่...</span>";
+            document.getElementById('outputText').innerHTML = htmlOut || "<span style='color:#ccc'>รอออเดอร์...</span>";
         }
 
         async function copyAsImage() {
@@ -107,11 +126,14 @@
                 try {
                     const data = [new ClipboardItem({ [blob.type]: blob })];
                     await navigator.clipboard.write(data);
-                    alert('คัดลอกรูปภาพแล้ว! วางใน LINE ได้เลย');
+                    alert('คัดลอกรูปบิลแล้ว! วางใน LINE ได้เลย');
                 } catch (err) { alert('กรุณาใช้ Chrome บนมือถือ'); }
             });
         }
-        document.getElementById('inputText').addEventListener('input', convert);
+
+        ['custName', 'orderNo', 'location', 'inputText'].forEach(id => {
+            document.getElementById(id).addEventListener('input', convert);
+        });
     </script>
 </body>
 </html>
