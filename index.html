@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Krua Oil Oil V20 - Garlic Special</title>
+    <title>Krua Oil Oil V21 - Structured POS</title>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         :root { --bg: #121212; --primary: #fbbf24; }
@@ -14,22 +14,22 @@
             .no-print { display: none !important; }
             #outputWrapper { border: none !important; width: 100% !important; background: white !important; }
             .order-line { 
-                font-size: 26pt !important; 
+                font-size: 25pt !important; 
                 font-weight: 900 !important;
                 color: black !important;
                 border-bottom: 2pt solid black !important;
-                margin-bottom: 10pt !important;
-                padding-bottom: 5pt !important;
+                margin-bottom: 8pt !important;
+                padding-bottom: 4pt !important;
                 line-height: 1.2 !important;
             }
-            .thai-ref { font-size: 10pt !important; color: #444 !important; }
+            .thai-ref { font-size: 9pt !important; color: #444 !important; }
         }
 
-        #inputText { width: 100%; max-width: 500px; height: 100px; background: #222; color: #fff; border: 1px solid #444; border-radius: 10px; padding: 10px; margin-bottom: 10px; font-size: 16px; }
+        #inputText { width: 100%; max-width: 500px; height: 100px; background: #222; color: #fff; border: 1px solid #444; border-radius: 10px; padding: 10px; margin-bottom: 10px; font-size: 16px; outline: none; }
         #outputWrapper { width: 100%; max-width: 500px; background: #fff; color: #000; border-radius: 10px; padding: 15px; }
-        .order-line { font-size: 24px; font-weight: bold; border-bottom: 1px solid #eee; padding: 10px 0; line-height: 1.4; display: flex; align-items: center; flex-wrap: wrap; }
-        .qty-badge { font-size: 28px; color: #e11d48; margin-right: 10px; font-weight: 900; }
-        .thai-ref { font-size: 11px; color: #888; margin-left: 2px; font-weight: normal; }
+        .order-line { font-size: 24px; font-weight: bold; border-bottom: 1px solid #eee; padding: 8px 0; line-height: 1.4; display: flex; align-items: center; flex-wrap: wrap; }
+        .qty-badge { font-size: 26px; color: #e11d48; margin-right: 8px; font-weight: 900; }
+        .thai-ref { font-size: 10px; color: #888; margin-left: 2px; font-weight: normal; }
         
         .btn-group { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
         .btn { padding: 18px; border: none; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; }
@@ -38,37 +38,38 @@
     </style>
 </head>
 <body>
-    <h2 class="no-print" style="margin-bottom:10px; color:var(--primary);">🍳 ครัวออยออย V20 ( garlic )</h2>
-    <textarea id="inputText" class="no-print" placeholder="หมูกระเทียม 2&#10;กุ้งหมึกทอดกระเทียม&#10;กุ้งกระเทียมไม่กระเทียม"></textarea>
+    <h2 class="no-print" style="margin-bottom:10px; color:var(--primary);">🍳 ครัวออยออย V21</h2>
+    <textarea id="inputText" class="no-print" placeholder="กะเพราหมูสับ 2 เผ็ดๆ&#10;แกงจืดเต้าหู้หมูสับ&#10;สุกี้น้ำรวมมิตร ไม่ใส่ผัก น้ำน้อย"></textarea>
     
     <div id="outputWrapper"><div id="outputText"></div></div>
 
     <div class="btn-group no-print">
-        <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์ออเดอร์ (เพิ่มรายการกระเทียม)</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์ออเดอร์ (ลำดับใหม่)</button>
         <button class="btn btn-copy" onclick="copyAsImage()">🖼️ ส่งรูปเข้า LINE</button>
     </div>
 
     <script>
         const emojiDict = {
-            // ประเภท
-            "กระเทียม": "🧄", "กะเพรา": "🌿", "กระเพรา": "🌿", "พริกแกง": "🥘", "ไข่เจียว": "🥚🔥", "สุกี้น้ำ": "🍲💧", "สุกี้แห้ง": "🍲🔥", "ข้าวผัด": "🍚", "ผัดดอกหอม": "🍳🌱", "ไข่ขยี้": "🍳🔥", "คะน้า": "🥬",
-            // เนื้อสัตว์
-            "หมูสับ": "🐽", "หมูกรอบ": "🥓", "หมูชิ้น": "🐖", "หมู": "🐖", "ไก่": "🐔", "เนื้อ": "🐂", "กุ้ง": "🦐", "หมึก": "🦑", "ปลาหมึก": "🦑", "ตับ": "🥩", "ปลากระป๋อง": "🥫",
-            // เงื่อนไขพิเศษ
-            "ไม่กระเทียม": "🚫🧄", "พิเศษ": "⭐", "ดอกหอม": "🌱", "หน่อไม้ดอง": "🎋",
-            // ความเผ็ด
+            // หมวด 1: ประเภท (ขึ้นต้น)
+            "กะเพรา": "🌿", "กระเพรา": "🌿", "พริกแกง": "🥘", "ทอดกระเทียม": "🧄🔥", "กระเทียม": "🧄", 
+            "ผัดผัก": "🥦", "สุกี้น้ำ": "🍲💧", "สุกี้แห้ง": "🍲🔥", "ข้าวผัด": "🍚", "แกงจืด": "🥣", "ไข่ขยี้": "🍳🔥", "คะน้า": "🥬", "ผัดดอกหอม": "🍳🌱",
+            // หมวด 2: เนื้อสัตว์
+            "หมูสับ": "🐽", "หมูกรอบ": "🥓", "หมูชิ้น": "🐖", "หมู": "🐖", "ไก่": "🐔", "เนื้อ": "🐂", "กุ้ง": "🦐", "หมึก": "🦑", "ตับ": "🥩", "ปลากระป๋อง": "🥫", "เต้าหู้": "🧊", "ไข่น้ำ": "🍳💧", "รวมมิตร": "🦑🦐🐷",
+            // หมวด 3: ผัก/เสริม/สุกี้ออปชัน
+            "หน่อไม้ดอง": "🎋", "ดอกหอม": "🌱", "ไม่ใส่วุ้นเส้น": "🚫🍜", "ไม่ใส่ผัก": "🚫🥬", "น้ำน้อย": "💧⬇️", "พิเศษ": "⭐",
+            // หมวด 4: เผ็ด
             "ไม่ใส่พริก": "🚫🌶️", "เผ็ดน้อย": "🌶️", "เผ็ดมากมาก": "🔥🌶️🔥", "เผ็ดมาก": "🌶️🌶️🌶️", "เผ็ด": "🌶️🌶️",
-            // ไข่
-            "ไข่ดาวไม่สุก": "🍳💦", "ไข่ดาวสุก": "🍳✅", "ไข่ดาว": "🍳"
+            // หมวด 5: ไข่
+            "ไข่ดาวไม่สุก": "🍳💦", "ไข่ดาวสุก": "🍳✅", "ไข่ดาว": "🍳", "ไข่เจียว": "🥚🔥"
         };
 
-        // ลำดับการเรียง: ประเภทเนื้อสัตว์ > ประเภทการทำ(กระเทียม/กะเพรา) > เงื่อนไขพิเศษ > ความเผ็ด > ไข่
+        // ลำดับที่พี่สั่ง: [ประเภท] > [เนื้อสัตว์] > [เสริม/เผ็ด/ไข่]
         const flow = [
-            ["หมูสับ", "หมูกรอบ", "หมูชิ้น", "หมู", "ไก่", "เนื้อ", "กุ้ง", "หมึก", "ปลาหมึก", "ตับ", "ปลากระป๋อง"], // 1. เนื้อสัตว์
-            ["กระเทียม", "กะเพรา", "กระเพรา", "พริกแกง", "ไข่เจียว", "สุกี้น้ำ", "สุกี้แห้ง", "ข้าวผัด", "ผัดดอกหอม", "ไข่ขยี้", "คะน้า"], // 2. ประเภท
-            ["ไม่กระเทียม", "พิเศษ", "ดอกหอม", "หน่อไม้ดอง"], // 3. เสริม
-            ["ไม่ใส่พริก", "เผ็ดน้อย", "เผ็ดมากมาก", "เผ็ดมาก", "เผ็ด"], // 4. เผ็ด
-            ["ไข่ดาวไม่สุก", "ไข่ดาวสุก", "ไข่ดาว"] // 5. ไข่
+            ["สุกี้น้ำ", "สุกี้แห้ง", "แกงจืด", "กะเพรา", "กระเพรา", "พริกแกง", "ทอดกระเทียม", "กระเทียม", "ผัดผัก", "ข้าวผัด", "ไข่ขยี้", "คะน้า", "ผัดดอกหอม"], // 1. ประเภท
+            ["รวมมิตร", "หมูสับ", "หมูกรอบ", "หมูชิ้น", "หมู", "ไก่", "เนื้อ", "กุ้ง", "หมึก", "ตับ", "ปลากระป๋อง", "เต้าหู้", "ไข่น้ำ"], // 2. เนื้อสัตว์
+            ["หน่อไม้ดอง", "ดอกหอม", "ไม่ใส่วุ้นเส้น", "ไม่ใส่ผัก", "น้ำน้อย", "พิเศษ"], // 3. เสริม
+            ["ไม่ใส่พริก", "เผ็ดน้อย", "เผ็ดมากมาก", "เผ็ดมาก", "เผ็ด"], // 4. ความเผ็ด
+            ["ไข่ดาวไม่สุก", "ไข่ดาวสุก", "ไข่ดาว", "ไข่เจียว"] // 5. ไข่
         ];
 
         function convert() {
@@ -88,17 +89,15 @@
                     for (let key of group) {
                         if (tempLine.includes(key)) {
                             iconsHtml += `${emojiDict[key]}<span class="thai-ref">${key}</span> `;
-                            // สำหรับเนื้อสัตว์ ให้หาต่อเผื่อเป็นเมนูผสม (เช่น กุ้งหมึก)
-                            if (group !== flow[0]) {
-                                tempLine = tempLine.replace(key, "###");
-                                break;
-                            }
+                            tempLine = tempLine.replace(key, "###");
+                            // ประเภท (group 0) และความเผ็ด (group 3) มักมีแค่อย่างเดียวต่อจาน
+                            if (group === flow[0] || group === flow[3]) break;
                         }
                     }
                 }
                 if (iconsHtml) htmlOut += `<div class="order-line"><span class="qty-badge">x${qty}</span> ${iconsHtml}</div>`;
             }
-            document.getElementById('outputText').innerHTML = htmlOut || "<span style='color:#ccc'>รอออเดอร์กระเทียม...</span>";
+            document.getElementById('outputText').innerHTML = htmlOut || "<span style='color:#ccc'>รอออเดอร์ลำดับใหม่...</span>";
         }
 
         async function copyAsImage() {
