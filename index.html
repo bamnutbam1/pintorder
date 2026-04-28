@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Krua Oil Oil V28 - Final Flow</title>
+    <title>Krua Oil Oil V29 - Bug Free Flow</title>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         :root { --bg: #121212; --primary: #fbbf24; --surface: #1e1e1e; }
@@ -33,7 +33,7 @@
     </style>
 </head>
 <body>
-    <h2 class="no-print" style="margin-bottom:10px; color:var(--primary);">🍳 ครัวออยออย V28</h2>
+    <h2 class="no-print" style="margin-bottom:10px; color:var(--primary);">🍳 ครัวออยออย V29</h2>
     <div class="input-group no-print">
         <input type="text" id="custName" placeholder="ชื่อลูกค้า">
         <input type="text" id="orderNo" placeholder="ลำดับ #">
@@ -59,25 +59,20 @@
 
     <script>
         const emojiDict = {
-            // 1. ประเภทอาหาร
             "กะเพรา": "🌿", "กระเพรา": "🌿", "พริกแกง": "🥘", "ทอดกระเทียม": "🧄🔥", "กระเทียม": "🧄", 
             "สุกี้น้ำ": "🍲💧", "สุกี้แห้ง": "🍲🔥", "ข้าวผัด": "🍚", "แกงจืด": "🥣", "ไข่เจียว": "🥚🔥",
-            // 2. เนื้อสัตว์
             "หมูสับ": "🐽", "หมูกรอบ": "🥓", "หมูชิ้น": "🐖", "หมู": "🐖", "ไก่": "🐔", "เนื้อ": "🐂", "กุ้ง": "🦐", "หมึก": "🦑", "ทะเล": "🦐🦑", "รวมมิตร": "🦑🦐🐷", "ตับ": "🥩",
-            // 3. ความเผ็ด
             "ไม่ใส่พริก": "🚫🌶️", "เผ็ดน้อย": "🌶️", "เผ็ดมากมาก": "🔥🌶️🔥", "เผ็ดมาก": "🌶️🌶️🌶️", "เผ็ด": "🌶️🌶️",
-            // 4. ประเภทไข่ (เครื่องเคียง)
-            "ไข่ดาวไม่สุก": "🍳💦", "ไข่ดาวสุก": "🍳✅", "ไข่ดาว": "🍳", "ไข่เจียวเครื่อง": "🥚🔥",
-            // 5. ภาชนะ/เสริม
+            "ไข่ดาวไม่สุก": "🍳💦", "ไข่ดาวสุก": "🍳✅", "ไข่ดาว": "🍳",
             "ใส่ถ้วย": "🥣✅", "ถ้วย": "🥣", "2 ฟอง": "🥚x2", "พิเศษ": "⭐", "ไม่กระเทียม": "🚫🧄"
         };
 
-        const flow = [
-            ["สุกี้น้ำ", "สุกี้แห้ง", "กะเพรา", "กระเพรา", "พริกแกง", "ทอดกระเทียม", "กระเทียม", "ข้าวผัด", "แกงจืด", "ไข่เจียว"], // ประเภท
-            ["หมูสับ", "หมูกรอบ", "หมูชิ้น", "หมู", "ไก่", "เนื้อ", "กุ้ง", "หมึก", "ทะเล", "รวมมิตร", "ตับ"], // เนื้อ
-            ["ไม่ใส่พริก", "เผ็ดน้อย", "เผ็ดมากมาก", "เผ็ดมาก", "เผ็ด"], // เผ็ด
-            ["ไข่ดาวไม่สุก", "ไข่ดาวสุก", "ไข่ดาว", "ไข่เจียวเครื่อง"], // ไข่เคียง
-            ["ใส่ถ้วย", "ถ้วย", "2 ฟอง", "พิเศษ", "ไม่กระเทียม"] // เสริม
+        const flowGroups = [
+            ["สุกี้น้ำ", "สุกี้แห้ง", "กะเพรา", "กระเพรา", "พริกแกง", "ทอดกระเทียม", "กระเทียม", "ข้าวผัด", "แกงจืด", "ไข่เจียว"],
+            ["หมูสับ", "หมูกรอบ", "หมูชิ้น", "หมู", "ไก่", "เนื้อ", "กุ้ง", "หมึก", "ทะเล", "รวมมิตร", "ตับ"],
+            ["ไม่ใส่พริก", "เผ็ดน้อย", "เผ็ดมากมาก", "เผ็ดมาก", "เผ็ด"],
+            ["ไข่ดาวไม่สุก", "ไข่ดาวสุก", "ไข่ดาว"], // ตัดไข่เจียวออกจากกลุ่มไข่ดาวเพื่อไม่ให้ซ้ำ
+            ["ใส่ถ้วย", "ถ้วย", "2 ฟอง", "พิเศษ", "ไม่กระเทียม"]
         ];
 
         function convert() {
@@ -99,22 +94,24 @@
                 if (qMatch && !line.includes("2 ฟอง")) qty = qMatch[1];
 
                 let iconsHtml = "";
-                let tempLine = line;
+                let foundKeys = [];
+                let lineForSearch = line;
 
-                // แก้ปัญหาไข่เจียวหาย: ถ้ามี "กระเพรา" และมี "ไข่เจียว" ให้เปลี่ยนไข่เจียวตัวหลังเป็น "ไข่เจียวเครื่อง"
-                if ((tempLine.includes("กระเพรา") || tempLine.includes("กะเพรา") || tempLine.includes("พริกแกง")) && tempLine.includes("ไข่เจียว")) {
-                    // หาตำแหน่งกะเพราก่อน ถ้าไข่เจียวอยู่หลังกะเพรา ให้ถือเป็นเครื่องเคียง
-                    tempLine = tempLine.replace("ไข่เจียว", "ไข่เจียวเครื่อง");
-                }
-
-                flow.forEach(group => {
+                // ระบบค้นหาแบบเรียงลำดับความยาว (ป้องกัน หมู ซ้ำ หมูกรอบ)
+                flowGroups.forEach(group => {
                     let sortedGroup = [...group].sort((a, b) => b.length - a.length);
                     for (let key of sortedGroup) {
-                        if (tempLine.includes(key)) {
-                            let displayKey = key.replace("เครื่อง", ""); // แสดงชื่อปกติในบิล
-                            iconsHtml += `${emojiDict[key]}<span class="thai-ref">${displayKey}</span> `;
-                            tempLine = tempLine.replace(key, "###");
-                            if (group !== flow[1]) break; 
+                        if (lineForSearch.includes(key)) {
+                            // เช็กว่าไอคอนนี้ถูกใส่ไปหรือยัง (ป้องกันไข่เจียวซ้ำ)
+                            if (!foundKeys.includes(emojiDict[key])) {
+                                iconsHtml += `${emojiDict[key]}<span class="thai-ref">${key}</span> `;
+                                foundKeys.push(emojiDict[key]);
+                            }
+                            // ลบคำที่หาเจอออกจากประโยคชั่วคราวเพื่อไม่ให้คำสั้นกว่ามาซ้ำ (เช่น หมูกรอบ -> ###กรอบ)
+                            lineForSearch = lineForSearch.replace(key, "###");
+                            
+                            // ถ้าไม่ใช่กลุ่มเนื้อสัตว์ ให้หยุดหาในกลุ่มนี้ทันที (ประเภทอาหารมีได้อย่างเดียว)
+                            if (group !== flowGroups[1]) break;
                         }
                     }
                 });
