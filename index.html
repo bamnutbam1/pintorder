@@ -3,117 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Krua Oil Oil - POS V12 Smart Search</title>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;500;700&display=swap" rel="stylesheet">
+    <title>Krua Oil Oil - POS V15 Perfect Flow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg: #121212; --surface: #1e1e1e; --primary: #fbbf24; 
-            --primary-dark: #f59e0b; --text: #f3f4f6; --line-green: #06C755;
-        }
+        :root { --bg: #121212; --surface: #1e1e1e; --primary: #fbbf24; --text: #f3f4f6; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
         @media print {
             body { background: white !important; color: black !important; padding: 0; margin: 0; }
             .no-print { display: none !important; }
-            .container { width: 100% !important; max-width: 100% !important; border: none !important; padding: 0 !important; }
-            #outputText { background: white !important; color: black !important; border: none !important; width: 100% !important; height: auto !important; display: block !important; }
-            .order-line { font-size: 28pt !important; font-weight: bold !important; margin-bottom: 12pt; border-bottom: 1pt solid #ccc; padding-bottom: 10pt; display: flex; align-items: center; flex-wrap: wrap; }
-            .thai-ref { font-size: 10pt !important; font-weight: normal !important; color: #444 !important; }
-            .bamboo-img { width: 40pt !important; height: 40pt !important; vertical-align: middle; }
+            .order-line { 
+                font-size: 32pt !important; font-weight: 900 !important; color: black !important;
+                border-bottom: 2pt solid black !important; margin-bottom: 12pt !important;
+                padding-bottom: 8pt !important; display: block !important; line-height: 1.1 !important;
+            }
+            .thai-ref { font-size: 10pt !important; font-weight: normal !important; color: #333 !important; }
         }
-
-        body { font-family: 'Prompt', sans-serif; background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; padding: 20px; align-items: center; }
-        .container { width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 15px; flex: 1; }
-        .header { text-align: center; margin-bottom: 5px; }
-        .header h1 { font-size: 26px; color: var(--primary); }
-        #inputText { width: 100%; min-height: 80px; background-color: var(--surface); color: var(--text); border: 2px solid #333; border-radius: 12px; padding: 12px; font-size: 16px; outline: none; }
-        #outputWrapper { width: 100%; min-height: 250px; background-color: #27272a; border: 2px solid var(--primary); border-radius: 12px; padding: 15px; overflow-y: auto; }
-        .order-line { font-size: 26px; line-height: 1.6; margin-bottom: 15px; border-bottom: 1px dashed #444; padding-bottom: 10px; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
-        .thai-ref { font-size: 13px; color: #aaa; font-weight: normal; }
-        .bamboo-img { width: 35px; height: 35px; vertical-align: middle; background: white; border-radius: 5px; padding: 2px; }
-
-        .toolbar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn { border: none; border-radius: 12px; padding: 12px; font-family: 'Prompt', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-paste { background-color: #374151; color: white; }
-        .btn-clear { background-color: rgba(248, 113, 113, 0.1); color: #f87171; border: 1px solid #f87171; }
-        .btn-print { width: 100%; background: #ffffff; color: #000; padding: 18px; font-size: 20px; border: 2px solid #ccc; margin-top: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        body { font-family: 'Prompt', sans-serif; background-color: var(--bg); color: var(--text); padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 600px; }
+        #inputText { width: 100%; min-height: 100px; background: var(--surface); color: white; border: 2px solid #444; border-radius: 12px; padding: 12px; margin-bottom: 10px; font-size: 16px; outline: none; }
+        #outputWrapper { width: 100%; min-height: 350px; background: #27272a; border: 2px solid var(--primary); border-radius: 12px; padding: 15px; }
+        .order-line { font-size: 26px; font-weight: 900; margin-bottom: 15px; border-bottom: 1px dashed #555; padding-bottom: 10px; }
+        .thai-ref { font-size: 13px; color: #aaa; font-weight: normal; margin-left: 2px; }
+        .btn-print { width: 100%; background: white; color: black; padding: 20px; font-size: 22px; font-weight: 900; border: 4px solid #ccc; border-radius: 15px; margin-top: 15px; cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header no-print"><h1>🍳 ครัวออยออย POS V12</h1></div>
-        <textarea id="inputText" class="no-print" placeholder="พิมพ์ชื่อเมนู หรือ เนื้อสัตว์ลงไป..."></textarea>
-        <div class="toolbar no-print" style="margin-bottom: 10px;">
-            <button class="btn btn-paste" onclick="pasteFromClipboard()">📋 วาง</button>
-            <button class="btn btn-clear" onclick="clearText()">🗑️ ล้าง</button>
-        </div>
-        <div id="outputWrapper">
-            <div id="outputText"></div>
-        </div>
-        <div class="no-print">
-            <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์ออเดอร์</button>
-        </div>
+        <h1 class="no-print" style="text-align:center; color:var(--primary); margin-bottom:15px;">🍳 ครัวออยออย V15</h1>
+        <textarea id="inputText" class="no-print" placeholder="สุกี้น้ำหมู เผ็ดมาก ไข่ดาวสุก..."></textarea>
+        <div id="outputWrapper"><div id="outputText"></div></div>
+        <button class="btn-print no-print" onclick="window.print()">🖨️ พิมพ์ออเดอร์ (เรียงเป๊ะ)</button>
     </div>
 
     <script>
-        const inputText = document.getElementById('inputText');
-        const outputText = document.getElementById('outputText');
-
-        const bambooIcon = `<img src="https://img.icons8.com/emoji/96/bamboo-shoot-emoji.png" class="bamboo-img">`;
-
-        // คลังคำสำคัญ (ดึงหมดถ้าเจอ)
-        const emojiDictionary = {
-            "สุกี้น้ำ": "🍲💧", "สุกี้แห้ง": "🍲🔥", "กะเพรา": "🌿", "กระเพรา": "🌿",
-            "พริกแกง": "🥘🌶️", "ผัดผักรวม": "🥦🥕🥬", "ผัดผักกาดขาว": "🥬🔥", "คะน้า": "🥬",
-            "หมูสับ": "🐷", "หมูกรอบ": "🥓", "หมูชิ้น": "🐖", "หมู": "🐖", "ไก่": "🐔", "เนื้อ": "🐂",
-            "กุ้ง": "🦐", "หมึก": "🦑", "ปลาหมึก": "🦑", "รวมมิตร": "🦑🦐🐷", "ตับ": "🫀",
-            "หน่อไม้ดอง": bambooIcon, "หน่อไม้": bambooIcon, "ปลากระป๋อง": "🥫🐟", "ดอกหอม": "🌱",
-            "ไข่ดาว": "🍳", "ไข่เจียว": "🥚", "พิเศษ": "⭐", "เผ็ดมาก": "🌶️🌶️🌶️"
+        const emojiDict = {
+            // ประเภท
+            "กะเพรา": "🌿", "กระเพรา": "🌿", "พริกแกง": "🥘🌶️", "สุกี้น้ำ": "🍲💧", "สุกี้แห้ง": "🍲🔥", "ข้าวผัด": "🍚🔥", "ไข่ขยี้": "🍳🔥", "คะน้า": "🥬",
+            // เนื้อสัตว์
+            "หมูสับ": "🐷", "หมูกรอบ": "🥓", "หมูชิ้น": "🐖", "หมู": "🐖", "ไก่": "🐔", "เนื้อ": "🐂", "กุ้ง": "🦐", "หมึก": "🦑", "ปลาหมึก": "🦑", "รวมมิตร": "🦑🦐🐷", "ตับ": "🫀", "ปลากระป๋อง": "🥫🐟",
+            // ผัก
+            "หน่อไม้ดอง": "🎋", "หน่อไม้": "🎋", "ดอกหอม": "🌱", "ผักกาดขาว": "🥬",
+            // ความเผ็ด
+            "ไม่ใส่พริก": "🚫🌶️", "เผ็ดน้อย": "🌶️", "เผ็ดมากมาก": "🔥🌶️🔥(โครตเผ็ด)", "เผ็ดมาก": "🌶️🌶️🌶️(เผ็ด)", "เผ็ด": "🌶️🌶️(เผ็ดขึ้นหน่อย)",
+            // ไข่
+            "ไข่ดาวไม่สุก": "🍳💦", "ไข่ดาวสุก": "🍳✅", "ไข่ดาว": "🍳", "ไข่เจียว": "🥚🔥", "พิเศษ": "⭐"
         };
 
-        // เรียงลำดับเพื่อให้หาคำยาวก่อนคำสั้น (ป้องกัน หมูกรอบ กลายเป็น หมู + กรอบ)
-        const searchKeys = Object.keys(emojiDictionary).sort((a, b) => b.length - a.length);
-
-        function clearText() { inputText.value = ''; outputText.innerHTML = ''; }
-
-        async function pasteFromClipboard() {
-            try {
-                const text = await navigator.clipboard.readText();
-                if (text) { inputText.value = text; convert(); }
-            } catch (err) { }
-        }
+        // ลำดับการเรียงตามสั่ง: ประเภท > เนื้อสัตว์ > ผัก > ความเผ็ด > ไข่
+        const flow = [
+            ["สุกี้น้ำ", "สุกี้แห้ง", "กะเพรา", "กระเพรา", "พริกแกง", "ข้าวผัด", "ไข่ขยี้", "คะน้า"], // 1. ประเภท
+            ["รวมมิตร", "กุ้งหมึก", "กุ้ง", "หมึก", "ปลาหมึก", "หมูกรอบ", "หมูสับ", "หมูชิ้น", "หมู", "ไก่", "เนื้อ", "ตับ", "ปลากระป๋อง"], // 2. เนื้อสัตว์
+            ["หน่อไม้ดอง", "หน่อไม้", "ดอกหอม", "ผักกาดขาว"], // 3. ผัก
+            ["ไม่ใส่พริก", "เผ็ดน้อย", "เผ็ดมากมาก", "เผ็ดมาก", "เผ็ด"], // 4. เผ็ด
+            ["ไข่ดาวไม่สุก", "ไข่ดาวสุก", "ไข่ดาว", "ไข่เจียว", "พิเศษ"] // 5. ไข่
+        ];
 
         function convert() {
-            let lines = inputText.value.trim().split('\n');
+            let lines = document.getElementById('inputText').value.trim().split('\n');
             let htmlOut = "";
-
             for (let line of lines) {
-                line = line.trim();
-                if (!line || line.startsWith('─')) continue;
-                
-                let qty = "1";
-                let qtyMatch = line.match(/[xX×]\s*(\d+)/) || line.match(/(\d+)\s*(ที่|กล่อง)/);
-                if (qtyMatch) qty = qtyMatch[1];
-
+                if (!line.trim()) continue;
+                let qty = (line.match(/[xX×]\s*(\d+)/) || ["", "1"])[1];
                 let iconsHtml = "";
-                let tempLine = line;
+                let currentLine = line;
 
-                // กวาดหาทุกคำที่มีใน Dictionary
-                for (let key of searchKeys) {
-                    if (tempLine.includes(key)) {
-                        iconsHtml += `<span>${emojiDictionary[key]}</span><span class="thai-ref">(${key})</span> `;
-                        // ลบคำที่หาเจอออกไปเพื่อไม่ให้หาซ้ำ แต่ต้องระวังไม่ให้ลำดับเพี้ยน
-                        tempLine = tempLine.replace(new RegExp(key, 'g'), '###'); 
+                for (let group of flow) {
+                    for (let key of group) {
+                        if (currentLine.includes(key)) {
+                            iconsHtml += `${emojiDict[key]}<span class="thai-ref">(${key})</span> `;
+                            currentLine = currentLine.replace(key, "###"); // กันหาซ้ำ
+                            if (group === flow[0] || group === flow[3]) break; // ประเภทและความเผ็ดเลือกได้อย่างเดียว
+                        }
                     }
                 }
-
-                if (iconsHtml !== "") {
-                    htmlOut += `<div class="order-line"><span>x${qty}</span> ${iconsHtml}</div>`;
-                }
+                if (iconsHtml) htmlOut += `<div class="order-line">x${qty} ${iconsHtml}</div>`;
             }
-            outputText.innerHTML = htmlOut || "❓ ไม่พบเมนู";
+            document.getElementById('outputText').innerHTML = htmlOut || "❓ รอกรอกออเดอร์...";
         }
-        inputText.addEventListener('input', convert);
+        document.getElementById('inputText').addEventListener('input', convert);
     </script>
 </body>
 </html>
