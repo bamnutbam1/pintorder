@@ -3,105 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Krua Oil Oil V22 - Full Bill POS</title>
+    <title>Krua Oil Oil V25 - Database Edition</title>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         :root { --bg: #121212; --primary: #fbbf24; --surface: #1e1e1e; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Prompt', sans-serif; background: var(--bg); color: #fff; padding: 15px; display: flex; flex-direction: column; align-items: center; }
         
-        /* สไตล์หน้าพิมพ์ */
         @media print {
             .no-print { display: none !important; }
             #outputWrapper { border: none !important; width: 100% !important; background: white !important; color: black !important; }
-            .bill-header { border-bottom: 2pt solid black !important; margin-bottom: 10pt !important; padding-bottom: 5pt !important; }
+            .bill-header { border-bottom: 2pt solid black !important; margin-bottom: 8pt !important; padding-bottom: 5pt !important; }
             .order-line { 
                 font-size: 24pt !important; font-weight: 900 !important;
-                border-bottom: 1pt solid black !important; margin-bottom: 8pt !important;
-                padding-bottom: 4pt !important; line-height: 1.2 !important;
+                border-bottom: 1pt solid black !important; margin-bottom: 6pt !important;
+                padding-bottom: 3pt !important; line-height: 1.1 !important;
             }
-            .thai-ref { font-size: 9pt !important; color: #444 !important; }
-            .header-info { font-size: 12pt !important; font-weight: bold !important; }
+            .thai-ref { font-size: 8pt !important; color: #444 !important; }
         }
 
-        .input-group { width: 100%; max-width: 500px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .input-group { width: 100%; max-width: 500px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
         .input-full { grid-column: span 2; }
         input, textarea { width: 100%; background: var(--surface); color: #fff; border: 1px solid #444; border-radius: 8px; padding: 10px; font-size: 14px; outline: none; }
-        textarea { height: 100px; }
+        textarea { height: 120px; }
         
         #outputWrapper { width: 100%; max-width: 500px; background: #fff; color: #000; border-radius: 10px; padding: 15px; }
-        .bill-header { border-bottom: 1px double #000; margin-bottom: 15px; padding-bottom: 10px; color: #000; }
-        .header-row { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 13px; font-weight: bold; }
+        .bill-header { border-bottom: 1px double #000; margin-bottom: 12px; padding-bottom: 8px; }
+        .header-row { display: flex; justify-content: space-between; margin-bottom: 2px; font-size: 12px; font-weight: bold; }
         
-        .order-line { font-size: 22px; font-weight: bold; border-bottom: 1px dashed #ccc; padding: 8px 0; line-height: 1.3; display: flex; align-items: center; flex-wrap: wrap; }
+        .order-line { font-size: 22px; font-weight: bold; border-bottom: 1px dashed #ccc; padding: 6px 0; line-height: 1.3; display: flex; align-items: center; flex-wrap: wrap; }
         .qty-badge { font-size: 24px; color: #e11d48; margin-right: 8px; font-weight: 900; }
         .thai-ref { font-size: 10px; color: #777; margin-left: 2px; font-weight: normal; }
         
-        .btn-group { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .btn-group { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
         .btn { padding: 15px; border: none; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; }
         .btn-print { background: #fff; color: #000; border: 2px solid #ccc; }
         .btn-copy { background: #06C755; color: #fff; }
     </style>
 </head>
 <body>
-    <h2 class="no-print" style="margin-bottom:15px; color:var(--primary);">🍳 ครัวออยออย V22</h2>
+    <h2 class="no-print" style="margin-bottom:10px; color:var(--primary);">🍳 ครัวออยออย V25 (DB)</h2>
     
     <div class="input-group no-print">
-        <input type="text" id="custName" placeholder="ชื่อลูกค้า">
-        <input type="text" id="orderNo" placeholder="ลำดับที่ (เช่น #01)">
-        <input type="text" id="location" class="input-full" placeholder="สถานที่ส่ง / เวลาที่ส่ง">
-        <textarea id="inputText" class="input-full" placeholder="กะเพราหมูกรอบไข่ดาวไม่สุกใส่ถ้วย..."></textarea>
+        <input type="text" id="custName" list="customerDB" placeholder="ชื่อลูกค้า (มีระบบเดาชื่อ)">
+        <datalist id="customerDB">
+            <option value="พี่นัท">
+            <option value="คุณออย">
+            <option value="ออฟฟิศชั้น 5">
+            <option value="ร้านกาแฟข้างๆ">
+        </datalist>
+        <input type="text" id="orderNo" placeholder="ลำดับ #">
+        <input type="text" id="location" class="input-full" placeholder="สถานที่ส่ง">
+        <input type="text" id="deliveryTime" class="input-full" placeholder="เวลาจัดส่ง">
+        <textarea id="inputText" class="input-full" placeholder="ใส่เมนูที่นี่..."></textarea>
     </div>
     
     <div id="outputWrapper">
         <div class="bill-header">
-            <div style="text-align:center; font-size: 18px; font-weight: 900; margin-bottom: 5px;">--- ครัวออยออย ---</div>
+            <div style="text-align:center; font-size: 16px; font-weight: 900; margin-bottom: 5px;">--- บิลครัวออยออย ---</div>
             <div class="header-row"><span id="outCust">ชื่อ: -</span> <span id="outNo"># -</span></div>
-            <div class="header-row"><span id="outLoc">ที่ส่ง: -</span></div>
-            <div class="header-row"><span id="outDate">วันที่: -</span> <span id="outTime">เวลา: -</span></div>
+            <div class="header-row"><span id="outLoc">สถานที่ส่ง: -</span></div>
+            <div class="header-row"><span id="outDelTime" style="color:red; font-size: 14px;">เวลาจัดส่ง: -</span></div>
+            <div class="header-row"><span id="outDate">วันที่: -</span></div>
+            <div class="header-row"><span id="outTime">เวลาที่สั่ง: -</span></div>
         </div>
         <div id="outputText"></div>
     </div>
 
     <div class="btn-group no-print">
-        <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์บิลส่งอาหาร</button>
-        <button class="btn btn-copy" onclick="copyAsImage()">🖼️ ส่งรูปเข้า LINE</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์บิล</button>
+        <button class="btn btn-copy" onclick="copyAsImage()">🖼️ คัดลอกรูปส่ง LINE</button>
     </div>
 
     <script>
+        // --- ฐานข้อมูลลูกค้า (พี่แก้ไขเพิ่มตรงนี้ได้เลย) ---
+        const customerData = {
+            "พี่นัท": "บ้านเลขที่ 123 ซอยครัวไทย",
+            "คุณออย": "คอนโด A ชั้น 12",
+            "ออฟฟิศชั้น 5": "ตึกคอมพิวเตอร์ แผนกบัญชี",
+            "ร้านกาแฟข้างๆ": "ส่งที่เคาน์เตอร์กาแฟ"
+        };
+
         const emojiDict = {
-            "กะเพรา": "🌿", "กระเพรา": "🌿", "พริกแกง": "🥘", "ทอดกระเทียม": "🧄🔥", "กระเทียม": "🧄", 
-            "ผัดผัก": "🥦", "สุกี้น้ำ": "🍲💧", "สุกี้แห้ง": "🍲🔥", "ข้าวผัด": "🍚", "แกงจืด": "🥣", "ไข่ขยี้": "🍳🔥", "ไข่เจียว": "🥚🔥",
-            "หมูสับ": "🐽", "หมูกรอบ": "🥓", "หมูชิ้น": "🐖", "ไก่": "🐔", "เนื้อ": "🐂", "กุ้ง": "🦐", "หมึก": "🦑", "รวมมิตร": "🦑🦐🐷", "ตับ": "🥩",
-            "ใส่ถ้วย": "🥣✅", "ถ้วย": "🥣", "หน่อไม้ดอง": "🎋", "ไม่ใส่วุ้นเส้น": "🚫🍜", "ไม่ใส่ผัก": "🚫🥬", "น้ำน้อย": "💧⬇️", "พิเศษ": "⭐",
+            "พริกแกง": "🥘", "กะเพรา": "🌿", "กระเพรา": "🌿", "ทอดกระเทียม": "🧄🔥", "สุกี้น้ำ": "🍲💧", "สุกี้แห้ง": "🍲🔥", "ข้าวผัด": "🍚", "แกงจืด": "🥣",
+            "ทะเล": "🦐🦑", "กุ้งหมึก": "🦐🦑", "หมูสับ": "🐽", "หมูกรอบ": "🥓", "หมูชิ้น": "🐖", "ไก่": "🐔", "เนื้อ": "🐂", "กุ้ง": "🦐", "หมึก": "🦑", "ตับ": "🥩", "เต้าหู้": "🧊", "ไข่น้ำ": "🍳💧",
             "ไม่ใส่พริก": "🚫🌶️", "เผ็ดน้อย": "🌶️", "เผ็ดมากมาก": "🔥🌶️🔥", "เผ็ดมาก": "🌶️🌶️🌶️", "เผ็ด": "🌶️🌶️",
-            "ไข่ดาวไม่สุก": "🍳💦", "ไข่ดาวสุก": "🍳✅", "ไข่ดาว": "🍳", "2 ฟอง": "🥚x2"
+            "ไข่เจียว": "🥚🔥", "ไข่ดาวไม่สุก": "🍳💦", "ไข่ดาวสุก": "🍳✅", "ไข่ดาว": "🍳", "2 ฟอง": "🥚x2",
+            "ใส่ถ้วย": "🥣✅", "ถ้วย": "🥣", "พิเศษ": "⭐", "ไม่ใส่วุ้นเส้น": "🚫🍜", "ไม่ใส่ผัก": "🚫🥬", "น้ำน้อย": "💧⬇️"
         };
 
         const flow = [
-            ["สุกี้น้ำ", "สุกี้แห้ง", "แกงจืด", "กะเพรา", "กระเพรา", "พริกแกง", "ทอดกระเทียม", "กระเทียม", "ผัดผัก", "ข้าวผัด", "ไข่ขยี้", "ไข่เจียว"],
-            ["รวมมิตร", "หมูสับ", "หมูกรอบ", "หมูชิ้น", "ไก่", "เนื้อ", "กุ้ง", "หมึก", "ตับ"],
-            ["ใส่ถ้วย", "ถ้วย", "หน่อไม้ดอง", "ไม่ใส่วุ้นเส้น", "ไม่ใส่ผัก", "น้ำน้อย", "2 ฟอง", "พิเศษ"],
+            ["พริกแกง", "กะเพรา", "กระเพรา", "ทอดกระเทียม", "สุกี้น้ำ", "สุกี้แห้ง", "ข้าวผัด", "แกงจืด"],
+            ["ทะเล", "กุ้งหมึก", "หมูสับ", "หมูกรอบ", "หมูชิ้น", "ไก่", "เนื้อ", "กุ้ง", "หมึก", "ตับ", "เต้าหู้", "ไข่น้ำ"],
             ["ไม่ใส่พริก", "เผ็ดน้อย", "เผ็ดมากมาก", "เผ็ดมาก", "เผ็ด"],
-            ["ไข่ดาวไม่สุก", "ไข่ดาวสุก", "ไข่ดาว"]
+            ["ไข่เจียว", "ไข่ดาวไม่สุก", "ไข่ดาวสุก", "ไข่ดาว"],
+            ["ใส่ถ้วย", "ถ้วย", "2 ฟอง", "พิเศษ", "ไม่ใส่วุ้นเส้น", "ไม่ใส่ผัก", "น้ำน้อย"]
         ];
 
-        function updateHeader() {
-            const now = new Date();
-            document.getElementById('outCust').innerText = "ชื่อ: " + (document.getElementById('custName').value || "-");
-            document.getElementById('outNo').innerText = (document.getElementById('orderNo').value || "# -");
-            document.getElementById('outLoc').innerText = "ส่ง: " + (document.getElementById('location').value || "-");
-            document.getElementById('outDate').innerText = "วันที่: " + now.toLocaleDateString('th-TH');
-            document.getElementById('outTime').innerText = "เวลา: " + now.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'});
+        function autoFillLocation() {
+            const name = document.getElementById('custName').value;
+            if (customerData[name]) {
+                document.getElementById('location').value = customerData[name];
+            }
+            convert();
         }
 
         function convert() {
-            updateHeader();
+            const now = new Date();
+            document.getElementById('outCust').innerText = "ชื่อ: " + (document.getElementById('custName').value || "-");
+            document.getElementById('outNo').innerText = (document.getElementById('orderNo').value || "# -");
+            document.getElementById('outLoc').innerText = "สถานที่ส่ง: " + (document.getElementById('location').value || "-");
+            document.getElementById('outDelTime').innerText = "เวลาจัดส่ง: " + (document.getElementById('deliveryTime').value || "-");
+            document.getElementById('outDate').innerText = "วันที่: " + now.toLocaleDateString('th-TH');
+            document.getElementById('outTime').innerText = "เวลาที่สั่ง: " + now.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'});
+
             let lines = document.getElementById('inputText').value.trim().split('\n');
             let htmlOut = "";
+
             for (let line of lines) {
                 if (!line.trim()) continue;
-                let qty = (line.match(/(\d+)\s+/) || line.match(/\s+(\d+)$/) || line.match(/(\d+)$/) || ["", "1"])[1];
+                let qty = "1";
+                let cleanLine = line.replace("2 ฟอง", "");
+                let qtyMatch = cleanLine.match(/(\d+)\s+/) || cleanLine.match(/\s+(\d+)$/) || cleanLine.match(/^(\d+)/);
+                if (qtyMatch) qty = qtyMatch[1];
+
                 let iconsHtml = "";
                 let tempLine = line;
 
@@ -110,7 +135,7 @@
                         if (tempLine.includes(key)) {
                             iconsHtml += `${emojiDict[key]}<span class="thai-ref">${key}</span> `;
                             tempLine = tempLine.replace(key, "###");
-                            if (group === flow[0] || group === flow[3]) break;
+                            if (group === flow[0] || group === flow[2]) break;
                         }
                     }
                 }
@@ -126,12 +151,13 @@
                 try {
                     const data = [new ClipboardItem({ [blob.type]: blob })];
                     await navigator.clipboard.write(data);
-                    alert('คัดลอกรูปบิลแล้ว! วางใน LINE ได้เลย');
-                } catch (err) { alert('กรุณาใช้ Chrome บนมือถือ'); }
+                    alert('คัดลอกรูปบิลเรียบร้อย!');
+                } catch (err) { alert('กรุณาใช้ Chrome'); }
             });
         }
 
-        ['custName', 'orderNo', 'location', 'inputText'].forEach(id => {
+        document.getElementById('custName').addEventListener('input', autoFillLocation);
+        ['orderNo', 'location', 'deliveryTime', 'inputText'].forEach(id => {
             document.getElementById(id).addEventListener('input', convert);
         });
     </script>
