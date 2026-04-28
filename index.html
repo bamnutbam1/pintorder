@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Krua Oil Oil - POS V11 Correct Order</title>
+    <title>Krua Oil Oil - POS V12 Smart Search</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #121212; --surface: #1e1e1e; --primary: #fbbf24; 
-            --primary-dark: #f59e0b; --danger: #f87171; --text: #f3f4f6; --line-green: #06C755;
+            --primary-dark: #f59e0b; --text: #f3f4f6; --line-green: #06C755;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -35,14 +35,14 @@
         .toolbar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .btn { border: none; border-radius: 12px; padding: 12px; font-family: 'Prompt', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-paste { background-color: #374151; color: white; }
-        .btn-clear { background-color: rgba(248, 113, 113, 0.1); color: var(--danger); border: 1px solid var(--danger); }
+        .btn-clear { background-color: rgba(248, 113, 113, 0.1); color: #f87171; border: 1px solid #f87171; }
         .btn-print { width: 100%; background: #ffffff; color: #000; padding: 18px; font-size: 20px; border: 2px solid #ccc; margin-top: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header no-print"><h1>🍳 ครัวออยออย POS V11</h1></div>
-        <textarea id="inputText" class="no-print" placeholder="วางออเดอร์ตรงนี้..."></textarea>
+        <div class="header no-print"><h1>🍳 ครัวออยออย POS V12</h1></div>
+        <textarea id="inputText" class="no-print" placeholder="พิมพ์ชื่อเมนู หรือ เนื้อสัตว์ลงไป..."></textarea>
         <div class="toolbar no-print" style="margin-bottom: 10px;">
             <button class="btn btn-paste" onclick="pasteFromClipboard()">📋 วาง</button>
             <button class="btn btn-clear" onclick="clearText()">🗑️ ล้าง</button>
@@ -61,20 +61,18 @@
 
         const bambooIcon = `<img src="https://img.icons8.com/emoji/96/bamboo-shoot-emoji.png" class="bamboo-img">`;
 
-        // คลังคำศัพท์
+        // คลังคำสำคัญ (ดึงหมดถ้าเจอ)
         const emojiDictionary = {
             "สุกี้น้ำ": "🍲💧", "สุกี้แห้ง": "🍲🔥", "กะเพรา": "🌿", "กระเพรา": "🌿",
             "พริกแกง": "🥘🌶️", "ผัดผักรวม": "🥦🥕🥬", "ผัดผักกาดขาว": "🥬🔥", "คะน้า": "🥬",
-            "หมูสับ": "🐷", "หมูกรอบ": "🥓", "หมูชิ้น": "🐖", "ไก่": "🐔", "เนื้อ": "🐂",
+            "หมูสับ": "🐷", "หมูกรอบ": "🥓", "หมูชิ้น": "🐖", "หมู": "🐖", "ไก่": "🐔", "เนื้อ": "🐂",
             "กุ้ง": "🦐", "หมึก": "🦑", "ปลาหมึก": "🦑", "รวมมิตร": "🦑🦐🐷", "ตับ": "🫀",
             "หน่อไม้ดอง": bambooIcon, "หน่อไม้": bambooIcon, "ปลากระป๋อง": "🥫🐟", "ดอกหอม": "🌱",
             "ไข่ดาว": "🍳", "ไข่เจียว": "🥚", "พิเศษ": "⭐", "เผ็ดมาก": "🌶️🌶️🌶️"
         };
 
-        // ลำดับการเรียงออเดอร์ให้เป็นประโยคที่ถูกต้อง: [ฐานอาหาร] -> [เนื้อสัตว์] -> [เสริม]
-        const baseMenu = ["สุกี้น้ำ", "สุกี้แห้ง", "กะเพรา", "กระเพรา", "พริกแกง", "ผัดผักรวม", "ผัดผักกาดขาว", "คะน้า", "ดอกหอม"];
-        const meats = ["รวมมิตร", "กุ้งหมึก", "กุ้ง", "หมึก", "ปลาหมึก", "หมูกรอบ", "หมูสับ", "หมูชิ้น", "ไก่", "เนื้อ", "ตับ", "ปลากระป๋อง"];
-        const toppings = ["หน่อไม้ดอง", "หน่อไม้", "ไข่ดาว", "ไข่เจียว", "พิเศษ", "เผ็ดมาก"];
+        // เรียงลำดับเพื่อให้หาคำยาวก่อนคำสั้น (ป้องกัน หมูกรอบ กลายเป็น หมู + กรอบ)
+        const searchKeys = Object.keys(emojiDictionary).sort((a, b) => b.length - a.length);
 
         function clearText() { inputText.value = ''; outputText.innerHTML = ''; }
 
@@ -98,27 +96,14 @@
                 if (qtyMatch) qty = qtyMatch[1];
 
                 let iconsHtml = "";
-                
-                // 1. หาฐานอาหารก่อน (เช่น สุกี้น้ำ)
-                for (let key of baseMenu) {
-                    if (line.includes(key)) {
-                        iconsHtml += `<span>${emojiDictionary[key]}</span><span class="thai-ref">(${key})</span> `;
-                        break; 
-                    }
-                }
+                let tempLine = line;
 
-                // 2. หาเนื้อสัตว์มาต่อท้าย (เช่น หมู)
-                for (let key of meats) {
-                    if (line.includes(key)) {
+                // กวาดหาทุกคำที่มีใน Dictionary
+                for (let key of searchKeys) {
+                    if (tempLine.includes(key)) {
                         iconsHtml += `<span>${emojiDictionary[key]}</span><span class="thai-ref">(${key})</span> `;
-                        // ไม่ break เพราะบางเมนูอาจมีเนื้อผสม เช่น กุ้งหมึก
-                    }
-                }
-
-                // 3. หาของแถม/ท็อปปิ้ง (เช่น หน่อไม้, ไข่ดาว)
-                for (let key of toppings) {
-                    if (line.includes(key)) {
-                        iconsHtml += `<span>${emojiDictionary[key]}</span><span class="thai-ref">(${key})</span> `;
+                        // ลบคำที่หาเจอออกไปเพื่อไม่ให้หาซ้ำ แต่ต้องระวังไม่ให้ลำดับเพี้ยน
+                        tempLine = tempLine.replace(new RegExp(key, 'g'), '###'); 
                     }
                 }
 
