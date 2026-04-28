@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Krua Oil Oil V18 - Copy to LINE</title>
+    <title>Krua Oil Oil V19 - Smart Order</title>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         :root { --bg: #121212; --primary: #fbbf24; }
@@ -14,56 +14,63 @@
             .no-print { display: none !important; }
             #outputWrapper { border: none !important; width: 100% !important; background: white !important; }
             .order-line { 
-                font-size: 24pt !important; 
+                font-size: 26pt !important; 
                 font-weight: 900 !important;
                 color: black !important;
                 border-bottom: 2pt solid black !important;
-                margin-bottom: 8pt !important;
+                margin-bottom: 10pt !important;
                 padding-bottom: 5pt !important;
-                line-height: 1.3 !important;
+                line-height: 1.2 !important;
             }
-            .thai-ref { font-size: 9pt !important; color: #333 !important; }
+            .thai-ref { font-size: 10pt !important; color: #444 !important; }
         }
 
-        #inputText { width: 100%; max-width: 450px; height: 80px; background: #222; color: #fff; border: 1px solid #444; border-radius: 10px; padding: 10px; margin-bottom: 10px; font-size: 16px; }
-        #outputWrapper { width: 100%; max-width: 450px; background: #fff; color: #000; border-radius: 10px; padding: 15px; }
-        .order-line { font-size: 22px; font-weight: bold; border-bottom: 1px solid #ddd; padding: 8px 0; line-height: 1.4; }
-        .thai-ref { font-size: 11px; color: #777; margin-left: 3px; font-weight: normal; }
+        #inputText { width: 100%; max-width: 500px; height: 100px; background: #222; color: #fff; border: 1px solid #444; border-radius: 10px; padding: 10px; margin-bottom: 10px; font-size: 16px; }
+        #outputWrapper { width: 100%; max-width: 500px; background: #fff; color: #000; border-radius: 10px; padding: 15px; }
+        .order-line { font-size: 24px; font-weight: bold; border-bottom: 1px solid #eee; padding: 10px 0; line-height: 1.4; display: flex; align-items: center; flex-wrap: wrap; }
+        .qty-badge { font-size: 28px; color: #e11d48; margin-right: 10px; font-weight: 900; }
+        .thai-ref { font-size: 11px; color: #888; margin-left: 2px; font-weight: normal; }
         
-        .btn-group { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .btn-group { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
         .btn { padding: 18px; border: none; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; }
         .btn-print { background: #fff; color: #000; border: 2px solid #ccc; }
         .btn-copy { background: #06C755; color: #fff; }
     </style>
 </head>
 <body>
-    <h2 class="no-print" style="margin-bottom:10px; color:var(--primary);">🍳 ครัวออยออย V18</h2>
-    <textarea id="inputText" class="no-print" placeholder="วางออเดอร์ที่นี่..."></textarea>
+    <h2 class="no-print" style="margin-bottom:10px; color:var(--primary);">🍳 ครัวออยออย V19</h2>
+    <textarea id="inputText" class="no-print" placeholder="ตัวอย่าง: กระเพราหมูกรอบ 2&#10;ผัดดอกหอมหมูสับตับ เผ็ดน้อย&#10;ข้าวไข่เจียวกุ้งสับพิเศษ"></textarea>
     
-    <div id="outputWrapper">
-        <div id="outputText"></div>
-    </div>
+    <div id="outputWrapper"><div id="outputText"></div></div>
 
     <div class="btn-group no-print">
-        <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์เข้าครัว (ไอคอนใหญ่)</button>
-        <button class="btn btn-copy" onclick="copyAsImage()">🖼️ คัดลอกรูปไปวางใน LINE</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์ออเดอร์ (ปรับจำนวนแล้ว)</button>
+        <button class="btn btn-copy" onclick="copyAsImage()">🖼️ ส่งรูปเข้า LINE</button>
     </div>
 
     <script>
         const emojiDict = {
-            "สุกี้น้ำ": "🍲💧", "สุกี้แห้ง": "🍲🔥", "กะเพรา": "🌿", "กระเพรา": "🌿", "พริกแกง": "🥘", 
+            // ประเภท (เอาไข่เจียวขึ้นหมวดแรกเพื่อให้วางไอคอนก่อน)
+            "ไข่เจียว": "🥚🔥", "สุกี้น้ำ": "🍲💧", "สุกี้แห้ง": "🍲🔥", "กะเพรา": "🌿", "กระเพรา": "🌿", "พริกแกง": "🥘", 
             "ข้าวผัด": "🍚", "ผัดดอกหอม": "🍳🌱", "ไข่ขยี้": "🍳🔥", "คะน้า": "🥬",
-            "หมูสับ": "🐽", "หมูกรอบ": "🥓", "หมูชิ้น": "🐖", "หมู": "🐖", "ไก่": "🐔", "เนื้อ": "🐂", 
-            "กุ้ง": "🦐", "หมึก": "🦑", "ปลาหมึก": "🦑", "ตับ": "🥩", "ปลากระป๋อง": "🥫",
-            "หน่อไม้ดอง": "🎋", "ไม่ใส่พริก": "🚫🌶️", "เผ็ดน้อย": "🌶️", "เผ็ดมากมาก": "🔥🌶️🔥", "เผ็ดมาก": "🌶️🌶️🌶️", "เผ็ด": "🌶️🌶️",
-            "ไข่ดาวไม่สุก": "🍳💦", "ไข่ดาวสุก": "🍳✅", "ไข่เจียว": "🥚🔥", "พิเศษ": "⭐"
+            // เนื้อสัตว์
+            "หมูสับ": "🐽", "กุ้งสับ": "🦐🐽", "หมูกรอบ": "🥓", "หมูชิ้น": "🐖", "หมู": "🐖", "ไก่": "🐔", "เนื้อ": "🐂", 
+            "กุ้ง": "🦐", "หมึก": "🦑", "ปลาหมึก": "🦑", "ตับ": "🥩", "ปลากระป๋อง": "🥫", "ทรงเครื่อง": "🍱", "หอมใหญ่": "🧅",
+            // ผัก & เสริม
+            "หน่อไม้ดอง": "🎋", "หน่อไม้": "🎋", "ดอกหอม": "🌱", 
+            // ความเผ็ด
+            "ไม่ใส่พริก": "🚫🌶️", "เผ็ดน้อย": "🌶️", "เผ็ดมากมาก": "🔥🌶️🔥", "เผ็ดมาก": "🌶️🌶️🌶️", "เผ็ด": "🌶️🌶️",
+            // ไข่ & พิเศษ
+            "ไข่ดาวไม่สุก": "🍳💦", "ไข่ดาวสุก": "🍳✅", "ไข่ดาว": "🍳", "พิเศษ": "⭐", "2 ฟอง": "🥚x2"
         };
 
+        // ลำดับการเรียง: ประเภท(ไข่เจียวจะอยู่กลุ่มนี้) > เนื้อสัตว์ > ผัก > เผ็ด > พิเศษ
         const flow = [
-            ["สุกี้น้ำ", "สุกี้แห้ง", "กะเพรา", "กระเพรา", "พริกแกง", "ข้าวผัด", "ผัดดอกหอม", "ไข่ขยี้", "คะน้า"],
-            ["หมูสับ", "หมูกรอบ", "หมูชิ้น", "หมู", "ไก่", "เนื้อ", "กุ้ง", "หมึก", "ตับ", "ปลากระป๋อง"],
-            ["หน่อไม้ดอง"], ["ไม่ใส่พริก", "เผ็ดน้อย", "เผ็ดมากมาก", "เผ็ดมาก", "เผ็ด"],
-            ["ไข่ดาวไม่สุก", "ไข่ดาวสุก", "ไข่ดาว", "ไข่เจียว", "พิเศษ"]
+            ["ไข่เจียว", "สุกี้น้ำ", "สุกี้แห้ง", "กะเพรา", "กระเพรา", "พริกแกง", "ข้าวผัด", "ผัดดอกหอม", "ไข่ขยี้", "คะน้า"],
+            ["กุ้งสับ", "หมูสับ", "หมูกรอบ", "หมูชิ้น", "หมู", "ไก่", "เนื้อ", "กุ้ง", "หมึก", "ตับ", "ปลากระป๋อง", "ทรงเครื่อง", "หอมใหญ่"],
+            ["หน่อไม้ดอง", "หน่อไม้", "ดอกหอม", "2 ฟอง"],
+            ["ไม่ใส่พริก", "เผ็ดน้อย", "เผ็ดมากมาก", "เผ็ดมาก", "เผ็ด"],
+            ["ไข่ดาวไม่สุก", "ไข่ดาวสุก", "พิเศษ"]
         ];
 
         function convert() {
@@ -71,7 +78,12 @@
             let htmlOut = "";
             for (let line of lines) {
                 if (!line.trim()) continue;
-                let qty = (line.match(/[xX×]\s*(\d+)/) || ["", "1"])[1];
+                
+                // ตรวจหาจำนวน (รองรับทั้งหน้าและหลัง เช่น "2 กระเพรา" หรือ "กระเพรา 2")
+                let qty = "1";
+                let qtyMatch = line.match(/(\d+)\s+/) || line.match(/\s+(\d+)$/) || line.match(/(\d+)$/);
+                if (qtyMatch) qty = qtyMatch[1];
+
                 let iconsHtml = "";
                 let tempLine = line;
 
@@ -79,12 +91,12 @@
                     for (let key of group) {
                         if (tempLine.includes(key)) {
                             iconsHtml += `${emojiDict[key]}<span class="thai-ref">${key}</span> `;
-                            tempLine = tempLine.replace(key, "");
-                            break;
+                            // ถ้าเป็นเนื้อสัตว์ ไม่ใช้ break เพื่อให้ดึงได้หลายอย่าง เช่น หมูสับ+ตับ
+                            if (group !== flow[1]) break; 
                         }
                     }
                 }
-                if (iconsHtml) htmlOut += `<div class="order-line">x${qty} ${iconsHtml}</div>`;
+                if (iconsHtml) htmlOut += `<div class="order-line"><span class="qty-badge">x${qty}</span> ${iconsHtml}</div>`;
             }
             document.getElementById('outputText').innerHTML = htmlOut || "<span style='color:#ccc'>รอออเดอร์...</span>";
         }
@@ -96,13 +108,10 @@
                 try {
                     const data = [new ClipboardItem({ [blob.type]: blob })];
                     await navigator.clipboard.write(data);
-                    alert('คัดลอกรูปภาพแล้ว! ไปที่ LINE แล้วกด "วาง" ได้เลย');
-                } catch (err) {
-                    alert('มือถือบางรุ่นไม่รองรับการคัดลอกรูปอัตโนมัติ');
-                }
+                    alert('คัดลอกรูปภาพแล้ว! ไปที่ LINE แล้วกด "วาง"');
+                } catch (err) { alert('กรุณาใช้บนเบราว์เซอร์ Chrome/Edge'); }
             });
         }
-
         document.getElementById('inputText').addEventListener('input', convert);
     </script>
 </body>
