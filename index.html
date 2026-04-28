@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Krua Oil Oil V26 - Bug Fix Edition</title>
+    <title>Krua Oil Oil V28 - Final Flow</title>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         :root { --bg: #121212; --primary: #fbbf24; --surface: #1e1e1e; }
@@ -33,10 +33,9 @@
     </style>
 </head>
 <body>
-    <h2 class="no-print" style="margin-bottom:10px; color:var(--primary);">🍳 ครัวออยออย V26 (Fixed)</h2>
+    <h2 class="no-print" style="margin-bottom:10px; color:var(--primary);">🍳 ครัวออยออย V28</h2>
     <div class="input-group no-print">
-        <input type="text" id="custName" list="customerDB" placeholder="ชื่อลูกค้า">
-        <datalist id="customerDB"><option value="พี่นัท"><option value="คุณออย"></datalist>
+        <input type="text" id="custName" placeholder="ชื่อลูกค้า">
         <input type="text" id="orderNo" placeholder="ลำดับ #">
         <input type="text" id="location" class="input-full" placeholder="สถานที่ส่ง">
         <input type="text" id="deliveryTime" class="input-full" placeholder="เวลาจัดส่ง">
@@ -55,40 +54,31 @@
     </div>
     <div class="btn-group no-print">
         <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์บิล</button>
-        <button class="btn btn-copy" onclick="copyAsImage()">🖼️ คัดลอกรูปส่ง LINE</button>
+        <button class="btn btn-copy" onclick="copyAsImage()">🖼️ ส่งรูปเข้า LINE</button>
     </div>
 
     <script>
-        const customerData = { "พี่นัท": "บ้านเลขที่ 123 ซอยครัวไทย", "คุณออย": "คอนโด A ชั้น 12" };
-        
         const emojiDict = {
-            // ประเภท (Type)
+            // 1. ประเภทอาหาร
             "กะเพรา": "🌿", "กระเพรา": "🌿", "พริกแกง": "🥘", "ทอดกระเทียม": "🧄🔥", "กระเทียม": "🧄", 
             "สุกี้น้ำ": "🍲💧", "สุกี้แห้ง": "🍲🔥", "ข้าวผัด": "🍚", "แกงจืด": "🥣", "ไข่เจียว": "🥚🔥",
-            // เนื้อสัตว์ (Meat)
-            "หมูสับ": "🐽", "หมูกรอบ": "🥓", "หมูชิ้น": "🐖", "หมู": "🐖", "ไก่": "🐔", "เนื้อ": "🐂", "กุ้ง": "🦐", "หมึก": "🦑", "รวมมิตร": "🦑🦐🐷", "ตับ": "🥩",
-            // เสริม/พิเศษ
-            "ไม่กระเทียม": "🚫🧄", "ใส่ถ้วย": "🥣✅", "ถ้วย": "🥣", "2 ฟอง": "🥚x2", "พิเศษ": "⭐",
-            // ความเผ็ด
+            // 2. เนื้อสัตว์
+            "หมูสับ": "🐽", "หมูกรอบ": "🥓", "หมูชิ้น": "🐖", "หมู": "🐖", "ไก่": "🐔", "เนื้อ": "🐂", "กุ้ง": "🦐", "หมึก": "🦑", "ทะเล": "🦐🦑", "รวมมิตร": "🦑🦐🐷", "ตับ": "🥩",
+            // 3. ความเผ็ด
             "ไม่ใส่พริก": "🚫🌶️", "เผ็ดน้อย": "🌶️", "เผ็ดมากมาก": "🔥🌶️🔥", "เผ็ดมาก": "🌶️🌶️🌶️", "เผ็ด": "🌶️🌶️",
-            // ไข่
-            "ไข่ดาวไม่สุก": "🍳💦", "ไข่ดาวสุก": "🍳✅", "ไข่ดาว": "🍳"
+            // 4. ประเภทไข่ (เครื่องเคียง)
+            "ไข่ดาวไม่สุก": "🍳💦", "ไข่ดาวสุก": "🍳✅", "ไข่ดาว": "🍳", "ไข่เจียวเครื่อง": "🥚🔥",
+            // 5. ภาชนะ/เสริม
+            "ใส่ถ้วย": "🥣✅", "ถ้วย": "🥣", "2 ฟอง": "🥚x2", "พิเศษ": "⭐", "ไม่กระเทียม": "🚫🧄"
         };
 
-        // ลำดับการดึงภาพตามที่พี่สั่ง: [ประเภท] > [เนื้อสัตว์] > [เผ็ด] > [ไข่] > [ภาชนะ]
-        const searchGroups = [
-            ["สุกี้น้ำ", "สุกี้แห้ง", "กะเพรา", "กระเพรา", "พริกแกง", "ทอดกระเทียม", "กระเทียม", "ข้าวผัด", "แกงจืด", "ไข่เจียว"],
-            ["หมูสับ", "หมูกรอบ", "หมูชิ้น", "หมู", "ไก่", "เนื้อ", "กุ้ง", "หมึก", "รวมมิตร", "ตับ"],
-            ["ไม่ใส่พริก", "เผ็ดน้อย", "เผ็ดมากมาก", "เผ็ดมาก", "เผ็ด"],
-            ["ไข่ดาวไม่สุก", "ไข่ดาวสุก", "ไข่ดาว"],
-            ["ไม่กระเทียม", "ใส่ถ้วย", "ถ้วย", "2 ฟอง", "พิเศษ"]
+        const flow = [
+            ["สุกี้น้ำ", "สุกี้แห้ง", "กะเพรา", "กระเพรา", "พริกแกง", "ทอดกระเทียม", "กระเทียม", "ข้าวผัด", "แกงจืด", "ไข่เจียว"], // ประเภท
+            ["หมูสับ", "หมูกรอบ", "หมูชิ้น", "หมู", "ไก่", "เนื้อ", "กุ้ง", "หมึก", "ทะเล", "รวมมิตร", "ตับ"], // เนื้อ
+            ["ไม่ใส่พริก", "เผ็ดน้อย", "เผ็ดมากมาก", "เผ็ดมาก", "เผ็ด"], // เผ็ด
+            ["ไข่ดาวไม่สุก", "ไข่ดาวสุก", "ไข่ดาว", "ไข่เจียวเครื่อง"], // ไข่เคียง
+            ["ใส่ถ้วย", "ถ้วย", "2 ฟอง", "พิเศษ", "ไม่กระเทียม"] // เสริม
         ];
-
-        function autoFillLocation() {
-            const name = document.getElementById('custName').value;
-            if (customerData[name]) { document.getElementById('location').value = customerData[name]; }
-            convert();
-        }
 
         function convert() {
             const now = new Date();
@@ -109,12 +99,22 @@
                 if (qMatch && !line.includes("2 ฟอง")) qty = qMatch[1];
 
                 let iconsHtml = "";
-                // หาแบบทีละกลุ่ม ไม่ลบคำทิ้ง เพื่อให้เจอทุกอย่าง
-                searchGroups.forEach(group => {
-                    for (let key of group) {
-                        if (line.includes(key)) {
-                            iconsHtml += `${emojiDict[key]}<span class="thai-ref">${key}</span> `;
-                            if (group !== searchGroups[1]) break; // เนื้อสัตว์ยอมให้มีได้หลายอย่าง (เช่น หมู+ตับ)
+                let tempLine = line;
+
+                // แก้ปัญหาไข่เจียวหาย: ถ้ามี "กระเพรา" และมี "ไข่เจียว" ให้เปลี่ยนไข่เจียวตัวหลังเป็น "ไข่เจียวเครื่อง"
+                if ((tempLine.includes("กระเพรา") || tempLine.includes("กะเพรา") || tempLine.includes("พริกแกง")) && tempLine.includes("ไข่เจียว")) {
+                    // หาตำแหน่งกะเพราก่อน ถ้าไข่เจียวอยู่หลังกะเพรา ให้ถือเป็นเครื่องเคียง
+                    tempLine = tempLine.replace("ไข่เจียว", "ไข่เจียวเครื่อง");
+                }
+
+                flow.forEach(group => {
+                    let sortedGroup = [...group].sort((a, b) => b.length - a.length);
+                    for (let key of sortedGroup) {
+                        if (tempLine.includes(key)) {
+                            let displayKey = key.replace("เครื่อง", ""); // แสดงชื่อปกติในบิล
+                            iconsHtml += `${emojiDict[key]}<span class="thai-ref">${displayKey}</span> `;
+                            tempLine = tempLine.replace(key, "###");
+                            if (group !== flow[1]) break; 
                         }
                     }
                 });
@@ -134,8 +134,7 @@
             });
         }
 
-        document.getElementById('custName').addEventListener('input', autoFillLocation);
-        ['orderNo', 'location', 'deliveryTime', 'inputText'].forEach(id => {
+        ['custName', 'orderNo', 'location', 'deliveryTime', 'inputText'].forEach(id => {
             document.getElementById(id).addEventListener('input', convert);
         });
     </script>
