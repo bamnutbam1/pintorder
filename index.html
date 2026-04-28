@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Krua Oil Oil - POS V7 Big Icons</title>
+    <title>Krua Oil Oil - POS V8 Best Flow</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -12,21 +12,16 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-        /* การตั้งค่าหน้าพิมพ์ (Print Settings) */
         @media print {
             body { background: white !important; color: black !important; padding: 0; margin: 0; }
             .no-print { display: none !important; }
             .container { width: 100% !important; max-width: 100% !important; border: none !important; padding: 0 !important; }
-            
-            /* ปรับแต่งขนาดตัวอักษรตอนพิมพ์ */
             #outputText { 
                 background: white !important; color: black !important; border: none !important; 
-                width: 100% !important; height: auto !important;
-                display: block !important;
-                font-family: 'Prompt', sans-serif;
+                width: 100% !important; height: auto !important; display: block !important;
             }
-            .order-line { font-size: 32pt !important; font-weight: bold !important; margin-bottom: 15pt; }
-            .thai-ref { font-size: 12pt !important; font-weight: normal !important; color: #333 !important; }
+            .order-line { font-size: 30pt !important; font-weight: bold !important; margin-bottom: 12pt; border-bottom: 1pt solid #ccc; padding-bottom: 10pt; }
+            .thai-ref { font-size: 10pt !important; font-weight: normal !important; color: #444 !important; }
         }
 
         body { font-family: 'Prompt', sans-serif; background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; padding: 20px; align-items: center; }
@@ -37,13 +32,9 @@
         
         #inputText { width: 100%; min-height: 100px; background-color: var(--surface); color: var(--text); border: 2px solid #333; border-radius: 12px; padding: 12px; font-size: 16px; outline: none; }
         
-        /* สไตล์หน้าจอแอป */
-        #outputWrapper { 
-            width: 100%; min-height: 250px; background-color: #27272a; border: 2px solid var(--primary); 
-            border-radius: 12px; padding: 15px; overflow-y: auto; 
-        }
-        .order-line { font-size: 30px; line-height: 1.4; margin-bottom: 15px; display: block; border-bottom: 1px dashed #444; padding-bottom: 10px; }
-        .thai-ref { font-size: 14px; color: #aaa; font-weight: normal; margin-left: 5px; }
+        #outputWrapper { width: 100%; min-height: 250px; background-color: #27272a; border: 2px solid var(--primary); border-radius: 12px; padding: 15px; overflow-y: auto; }
+        .order-line { font-size: 28px; line-height: 1.4; margin-bottom: 15px; display: block; border-bottom: 1px dashed #444; padding-bottom: 10px; }
+        .thai-ref { font-size: 14px; color: #aaa; font-weight: normal; }
 
         .toolbar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .btn { border: none; border-radius: 12px; padding: 12px; font-family: 'Prompt', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -58,7 +49,7 @@
 </head>
 <body>
     <div class="container">
-        <div class="header no-print"><h1>🍳 ครัวออยออย POS V7</h1></div>
+        <div class="header no-print"><h1>🍳 ครัวออยออย POS V8</h1></div>
         <div class="box-title no-print">📥 วางออเดอร์ภาษาไทย:</div>
         <textarea id="inputText" class="no-print" placeholder="วางออเดอร์ที่นี่..."></textarea>
         
@@ -67,13 +58,13 @@
             <button class="btn btn-clear" onclick="clearText()">🗑️ ล้าง</button>
         </div>
 
-        <div class="box-title no-print">✨ ผลลัพธ์สำหรับพนักงาน:</div>
+        <div class="box-title no-print">✨ ลำดับการทำ (ตัวใหญ่พิเศษ):</div>
         <div id="outputWrapper">
             <div id="outputText"></div>
         </div>
 
         <div class="action-container no-print">
-            <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์ออเดอร์ (ตัวใหญ่)</button>
+            <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์ออเดอร์เข้าครัว</button>
             <button class="btn btn-line" onclick="shareToLine()">💬 ส่งเข้า LINE</button>
         </div>
     </div>
@@ -83,24 +74,23 @@
         const inputText = document.getElementById('inputText');
         const outputText = document.getElementById('outputText');
 
-        // คลังคำศัพท์อัปเดตใหม่ (หน่อไม้ดอง, ปลากระป๋อง, ตับ, ดอกหอม)
+        // คลังคำศัพท์เรียงลำดับความสำคัญ (คำยาวไปสั้น)
         const emojiDictionary = {
-            "หน่อไม้ดอง": "🎋💦",
+            "หน่อไม้ดอง": "🎋", "หน่อไม้": "🎋",
             "ปลากระป๋อง": "🥫🐟",
-            "ผัดดอกหอมใส่ตับ": "🌱🥩🫀",
-            "คะน้าปลากระป๋อง": "🥬🥫🐟",
-            "กระเพราปลากระป๋อง": "🌿🥫🐟",
-            "ไข่ขยี้ปลากระป๋อง": "🍳🔥🥫🐟",
-            "ตับหมู": "🥩🫀",
-            "ตับ": "🫀",
             "ดอกหอม": "🌱",
             "สุกี้น้ำ": "🍲💧", "สุกี้แห้ง": "🍲🔥",
             "กะเพรา": "🌿", "กระเพรา": "🌿",
+            "พริกแกง": "🥘🌶️", "ผัดพริกแกง": "🥘🌶️",
             "หมูกรอบ": "🥓", "หมูชิ้น": "🐖", "หมูสับ": "🐷",
+            "ตับหมู": "🥩🫀", "ตับ": "🫀",
             "ไก่": "🐔", "เนื้อ": "🐂", "กุ้ง": "🦐", "หมึก": "🦑", "ปลาหมึก": "🦑",
-            "คะน้า": "🥬", "ไข่ขยี้": "🍳🔥", "ไข่ดาว": "🍳", "ไข่เจียว": "🥚",
+            "คะน้า": "🥬", "ไข่ขยี้": "🍳🔥", "ไข่ดาวไม่สุก": "🍳💦", "ไข่ดาวสุก": "🍳✅", "ไข่ดาว": "🍳", "ไข่เจียว": "🥚",
             "พิเศษ": "⭐", "เผ็ดมาก": "🌶️🌶️🌶️", "ใส่ถ้วย": "🥣"
         };
+
+        // ลำดับการแสดงผลเพื่อให้เรียงเป็นประโยคอาหาร (เช่น กะเพรา -> เนื้อสัตว์ -> ผักเสริม -> ไข่)
+        const priorityOrder = ["กะเพรา", "กระเพรา", "สุกี้น้ำ", "สุกี้แห้ง", "พริกแกง", "ผัดพริกแกง", "คะน้า", "ไข่ขยี้", "ดอกหอม", "หมูกรอบ", "หมูชิ้น", "หมูสับ", "ไก่", "เนื้อ", "กุ้ง", "หมึก", "ปลาหมึก", "ตับหมู", "ตับ", "ปลากระป๋อง", "หน่อไม้ดอง", "หน่อไม้", "ไข่ดาวไม่สุก", "ไข่ดาวสุก", "ไข่ดาว", "ไข่เจียว", "พิเศษ", "เผ็ดมาก", "ใส่ถ้วย"];
 
         function clearText() { inputText.value = ''; outputText.innerHTML = ''; }
 
@@ -114,7 +104,6 @@
         function convert() {
             let lines = inputText.value.trim().split('\n');
             let htmlOut = "";
-            const sortedKeys = Object.keys(emojiDictionary).sort((a,b) => b.length - a.length);
 
             for (let line of lines) {
                 line = line.trim();
@@ -125,15 +114,14 @@
                 if (qtyMatch) qty = qtyMatch[1];
 
                 let iconsHtml = "";
-                let tempLine = line;
-                
-                for (let key of sortedKeys) {
-                    if (tempLine.includes(key)) {
-                        // แยกอิโมจิให้ใหญ่ และตัวหนังสือให้เล็ก
+                // ตรวจหาคำตามลำดับความสำคัญเพื่อให้เรียงประโยคสวย
+                for (let key of priorityOrder) {
+                    if (line.includes(key)) {
                         iconsHtml += `${emojiDictionary[key]}<span class="thai-ref">(${key})</span> `;
-                        tempLine = tempLine.replace(new RegExp(key, 'g'), '');
+                        // ไม่ต้อง replace ออกเพื่อให้หาคำอื่นต่อได้ แต่ระวังคำซ้อน
                     }
                 }
+
                 if (iconsHtml !== "") {
                     htmlOut += `<div class="order-line">x${qty} ${iconsHtml}</div>`;
                 }
